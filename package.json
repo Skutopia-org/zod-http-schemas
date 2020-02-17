@@ -1,0 +1,49 @@
+{
+    "name": "http-schemas",
+    "version": "0.0.1",
+    "description": "Strongly-typed HTTP schemas",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "test": "mocha -r ts-node/register \"src/**/*.test.ts\""
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yortus/http-schemas.git"
+    },
+    "keywords": [],
+    "author": {
+        "name": "Troy Gerwien",
+        "email": "yortus@gmail.com",
+        "url": "http://github.com/yortus/"
+    },
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/yortus/http-schemas/issues"
+    },
+    "files": [
+        "dist/"
+    ],
+    "devDependencies": {
+        "@types/chai": "^4.2.9",
+        "@types/compression": "^1.0.1",
+        "@types/cookie-parser": "^1.4.2",
+        "@types/express": "^4.17.2",
+        "@types/helmet": "0.0.42",
+        "@types/mocha": "^7.0.1",
+        "chai": "^4.2.0",
+        "compression": "^1.7.4",
+        "cookie-parser": "^1.4.4",
+        "express": "^4.17.1",
+        "helmet": "^3.21.2",
+        "mocha": "^7.0.1",
+        "ts-node": "^8.6.2",
+        "typescript": "^3.7.5"
+    },
+    "dependencies": {
+        "axios": "^0.19.0",
+        "path-to-regexp": "^4.0.2",
+        "rtti": "^0.1.6"
+    }
+}

@@ -1,0 +1,22 @@
+{
+    "editor.rulers": [
+        120
+    ],
+
+    "files.exclude": {
+        "**/dist": false,
+        "**/node_modules": false,
+        "**/tsconfig.tsbuildinfo": false,
+        "**/.git": false,
+        "**/.svn": false,
+        "**/.hg": false,
+        "**/CVS": false,
+        "**/.DS_Store": false
+    },
+
+    "typescript.tsdk": "node_modules/typescript/lib",
+
+    "mochaExplorer.files": "src/**/*.test.ts",
+    "mochaExplorer.require": "ts-node/register",
+    "mochaExplorer.logpanel": true,
+}
