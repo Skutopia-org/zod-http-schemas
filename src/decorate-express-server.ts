@@ -1,7 +1,7 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {IRouter, NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
 import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
-import {ParamNames, Paths, RequestPayload, ResponsePayload, HttpSchema} from './http-schema';
+import {ParamNames, Paths, RequestPayload, ResponsePayload, HttpSchema} from './create-http-schema';
 
 
 /**

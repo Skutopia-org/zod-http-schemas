@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
-import {ParamNames, Paths, RequestPayload, ResponsePayload, HttpSchema} from './http-schema';
+import {ParamNames, Paths, RequestPayload, ResponsePayload, HttpSchema} from './create-http-schema';
 
 
 /** Returns a strongly typed object for making requests to a remote HTTP server that implements the given `schema`. */

@@ -8,7 +8,7 @@ import {TypeFromTypeInfo, TypeInfo} from 'rtti';
  * HTTP schemas may be passed to `createHttpClient` and/or `decorateExpressServer` to implement the schema on the
  * client-side and/or server-side. See those functions for more details.
  */
-export function httpSchema<T extends HttpSchema>(schema: T) {
+export function createHttpSchema<T extends HttpSchema>(schema: T) {
     // Validate the schema for things we can check up-front.
     let methodPathCombos = new Set<string>();
     for (let route of schema) {
@@ -35,7 +35,7 @@ export function httpSchema<T extends HttpSchema>(schema: T) {
 
 
 /** Convenience function for defining a single route within a HTTP schema. */
-export function httpRoute<
+export function createHttpRoute<
     M extends 'GET' | 'POST',
     P extends string,
     N extends string,
