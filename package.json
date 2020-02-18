@@ -23,7 +23,11 @@
         "url": "https://github.com/yortus/http-schemas/issues"
     },
     "files": [
-        "dist/"
+        "dist/",
+        "client.d.ts",
+        "client.js",
+        "server.d.ts",
+        "server.js"
     ],
     "devDependencies": {
         "@types/chai": "^4.2.9",

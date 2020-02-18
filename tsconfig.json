@@ -8,5 +8,8 @@
         "rootDir": "src",
         "outDir": "dist",
         "strict": true
-    }
+    },
+    "include": [
+        "src/"
+    ]
 }
