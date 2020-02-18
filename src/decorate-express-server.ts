@@ -102,10 +102,11 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
         // This is done by wrapping methods on the `res` object, so subsequent handlers call the wrapped versions.
         // Note that validation errors will throw in the handler that caused them, in which case the error will
         // be passed to `next` and hence any error handling middleware (by default will respond with a 500 error).
+        const {json, jsonp, send} = res;
         res = Object.assign(res, {
-            json: (body: unknown) => res.json(validateAndClean(body, routeInfo.responsePayload)),
-            jsonp: (body: unknown) => res.jsonp(validateAndClean(body, routeInfo.responsePayload)),
-            send: (body: unknown) => res.send(validateAndClean(body, routeInfo.responsePayload)),
+            json: (body: unknown) => json.call(res, validateAndClean(body, routeInfo.responsePayload)),
+            jsonp: (body: unknown) => jsonp.call(res, validateAndClean(body, routeInfo.responsePayload)),
+            send: (body: unknown) => send.call(res, validateAndClean(body, routeInfo.responsePayload)),
         });
 
         // Param/payload checking is done. Pass on to subsequent middleware for further processing.
