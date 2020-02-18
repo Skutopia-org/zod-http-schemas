@@ -1,2 +1,2 @@
 export {t, TypeFromTypeInfo, TypeInfo} from 'rtti';
-export {createHttpRoute, createHttpSchema} from './create-http-schema';
+export {createHttpRoute, createHttpSchema, HttpSchema, RouteInfo} from './create-http-schema';
