@@ -117,7 +117,7 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
                 return jsonp.call(res, body);
             },
             send: (body: {}) => {
-                if (typeof body === 'string') return send.call(res, body); // TODO: another workaround...
+                if (typeof body === 'string') return send.call(res, body); // TODO: another workaround... but could be a legit string...
                 if (validatedPayloads.has(body)) return send.call(res, body); // TODO: will throw if body is primitive
                 body = validateAndClean(body, routeInfo.responsePayload) as {};
                 validatedPayloads.add(body);
