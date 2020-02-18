@@ -90,7 +90,8 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
         // it is a client error, so a 400 response is sent and there is no further handling for this request.
         try {
             // TODO: test that this actually replaces the req.body value
-            req.body = validateAndClean(req.body, routeInfo.requestPayload);
+            // TODO: doc that req.body will always be an empty object, and not undefined, if no payload was sent
+            req.body = validateAndClean(req.body, routeInfo.requestPayload ?? t.object({}));
         }
         catch (err) {
             res.status(400).send('The request payload did not conform to the required schema.');
@@ -123,7 +124,7 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
 type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
     Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'> & {
-        body: RequestPayload<S, M, P>;
+        body: RequestPayload<S, M, P> extends undefined ? {} : RequestPayload<S, M, P>;
         [Symbol.asyncIterator](): AsyncIterableIterator<any>; // must add this back; not preserved by mapped types above
     };
 
