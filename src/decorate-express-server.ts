@@ -102,13 +102,26 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
         // This is done by wrapping methods on the `res` object, so subsequent handlers call the wrapped versions.
         // Note that validation errors will throw in the handler that caused them, in which case the error will
         // be passed to `next` and hence any error handling middleware (by default will respond with a 500 error).
-        // TODO: explain trippy logic here...
         const {json, jsonp, send} = res; // the original json/jsonp/send methods to be wrapped
-        let resOrig: typeof res = Object.assign(Object.create(res), {json, jsonp, send}); // a new `res` object that exposes the original json/jsonp/send methods
         res = Object.assign(res, {
-            json: (body: unknown) => resOrig.json(validateAndClean(body, routeInfo.responsePayload)),
-            jsonp: (body: unknown) => resOrig.jsonp(validateAndClean(body, routeInfo.responsePayload)),
-            send: (body: unknown) => resOrig.send(validateAndClean(body, routeInfo.responsePayload)),
+            json: (body: {}) => {
+                if (validatedPayloads.has(body)) return json.call(res, body); // TODO: will throw if body is primitive
+                body = validateAndClean(body, routeInfo.responsePayload) as {};
+                validatedPayloads.add(body);
+                return json.call(res, body);
+            },
+            jsonp: (body: {}) => {
+                if (validatedPayloads.has(body)) return jsonp.call(res, body); // TODO: will throw if body is primitive
+                body = validateAndClean(body, routeInfo.responsePayload) as {};
+                validatedPayloads.add(body);
+                return jsonp.call(res, body);
+            },
+            send: (body: {}) => {
+                if (validatedPayloads.has(body)) return send.call(res, body); // TODO: will throw if body is primitive
+                body = validateAndClean(body, routeInfo.responsePayload) as {};
+                validatedPayloads.add(body);
+                return send.call(res, body);
+            },
         });
 
         // Param/payload checking is done. Pass on to subsequent middleware for further processing.
@@ -122,6 +135,9 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
         return value;
     }
 }
+
+
+const validatedPayloads = new WeakSet<{}>();
 
 
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
