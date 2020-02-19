@@ -1,80 +1,101 @@
 // TODO: make into mocha tests
 
 
-// import {t} from 'rtti';
-// import {decorateExpressServer} from './decorate-express-server';
-// import {httpRoute, httpSchema, ParamNames, Paths, RequestPayload, ResponsePayload} from './http-schema';
+import axios from 'axios';
+import * as compression from 'compression';
+import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import * as helmet from 'helmet';
+import * as http from 'http';
+import {t} from 'rtti';
+import {decorateExpressServer} from './decorate-express-server';
+import {createHttpRoute, createHttpSchema, ParamNames, Paths, RequestPayload, ResponsePayload} from './create-http-schema';
 
 
-// import * as express from 'express';
-// import * as compression from 'compression';
-// import * as cookieParser from 'cookie-parser';
-// import * as helmet from 'helmet';
-// let middleware1 = compression();
-// let middleware2 = helmet();
-// let middleware3 = cookieParser();
+describe('decorateExpressServer', () => {
+
+    // Define middleware used across tests
+    let middleware1 = compression();
+    let middleware2 = helmet();
+    let middleware3 = cookieParser();
+
+    // Define schema used across tests
+    const schema = createHttpSchema([
+        createHttpRoute({
+            method: 'POST',
+            path: '/do-thing',
+            // TODO: paramNames: ['a123', 'a456'],
+            requestPayload: t.object({
+                foo: t.string,
+                bar: t.unit(42),
+            }),
+        }),
+        createHttpRoute({
+            method: 'GET',
+            path: '/do-thing',
+            // TODO: paramNames: ['ccc', 'ddd'],
+            //requestPayload: t.undefined,
+            responsePayload: t.unit(42),
+        }),
+        createHttpRoute({
+            method: 'POST',
+            path: '/other-thing',
+            paramNames: [],
+            requestPayload: t.array(t.number),
+            responsePayload: t.date,
+        }),
+        createHttpRoute({
+            method: 'GET',
+            path: '/healthcheck',
+            requestPayload: t.union(t.undefined, t.object({})),
+            responsePayload: t.object({success: t.boolean}),
+        }),
+    ]);
+
+    // TODO: type-level tests... just for manual inspection (eg hover over LHSs in VSCode to see inferred types)
+    type T1 = RequestPayload<typeof schema, 'POST', '/do-thing'>;
+    type T2 = ResponsePayload<typeof schema, 'POST', '/do-thing'>;
+    type T3 = ParamNames<typeof schema, 'POST', '/do-thing'>;
+    type T4 = Paths<typeof schema, 'GET'>;
+    type T5 = Paths<typeof schema, 'POST'>;
 
 
-// const s1 = httpSchema([
-//     httpRoute({
-//         method: 'POST',
-//         path: '/do-thing',
-//         paramNames: ['a123', 'a456'],
-//         requestPayload: t.object({
-//             foo: t.string,
-//             bar: t.unit(42),
-//         }),
-//     }),
-//     httpRoute({
-//         method: 'GET',
-//         path: '/do-thing',
-//         paramNames: ['ccc', 'ddd'],
-//         //requestPayload: t.undefined,
-//         responsePayload: t.unit(42),
-//     }),
-//     httpRoute({
-//         method: 'POST',
-//         path: '/other-thing',
-//         paramNames: [],
-//         requestPayload: t.array(t.number),
-//         responsePayload: t.date,
-//     }),
-//     httpRoute({
-//         method: 'GET',
-//         path: '/healthcheck',
-//     }),
-// ]);
+
+    it('works', async () => {
+        const app = express();
+        const dec = decorateExpressServer(schema, app);
+        dec.get('/do-thing', middleware1, (req, res) => {
+            //req.params.ccc
+            req.body
+            res.send(42);
+        });
+        dec.post('/do-thing', middleware2, middleware3, (req, res) => {
+            //req.params.a456;
+            req.body.bar;
+            //res.send('foo');
+        });
+        dec.post('/other-thing', (req, res) => {
+            //req.params.anything
+            req.body[1].toExponential
+            res.send(new Date());
+        });
+        dec.get('/healthcheck', (req, res) => {
+            req.params
+            req.body
+            res.send({success: true});
+        });
+
+        let server = http.createServer(app).listen(8080, async () => {
+
+            // do some tests...
+            let res1 = await axios.get('http://localhost:8080/healthcheck');
 
 
-// type T1 = RequestPayload<typeof s1, 'POST', '/do-thing'>;
-// type T2 = ResponsePayload<typeof s1, 'POST', '/do-thing'>;
-// type T3 = ParamNames<typeof s1, 'POST', '/do-thing'>;
-// type T4 = Paths<typeof s1, 'GET'>;
-// type T5 = Paths<typeof s1, 'POST'>;
 
-
-// const app = decorateExpressServer(s1, express.Router());
-
-// app.get('/do-thing', middleware1, (req, res) => {
-//     req.params.ccc
-//     req.body
-//     res.send(42);
-// });
-
-// app.post('/do-thing', middleware2, middleware3, (req, res) => {
-//     req.params.a456;
-//     req.body.bar;
-//     //res.send('foo');
-// });
-
-// app.post('/other-thing', (req, res) => {
-//     //req.params.anything
-//     req.body[1].toExponential
-//     res.send(new Date());
-// });
-
-// app.get('/healthcheck', (req, res) => {
-//     req.params
-//     req.body
-//     res.send
-// });
+            // Terminate the server...
+            server.close(() => {
+                // ...
+            });
+        });
+    });
+});
