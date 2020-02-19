@@ -104,25 +104,9 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
         // be passed to `next` and hence any error handling middleware (by default will respond with a 500 error).
         const {json, jsonp, send} = res; // the original json/jsonp/send methods to be wrapped
         res = Object.assign(res, {
-            json: (body: {}) => {
-                if (validatedPayloads.has(body)) return json.call(res, body); // TODO: will throw if body is primitive
-                body = validateAndClean(body, routeInfo.responsePayload) as {};
-                validatedPayloads.add(body);
-                return json.call(res, body);
-            },
-            jsonp: (body: {}) => {
-                if (validatedPayloads.has(body)) return jsonp.call(res, body); // TODO: will throw if body is primitive
-                body = validateAndClean(body, routeInfo.responsePayload) as {};
-                validatedPayloads.add(body);
-                return jsonp.call(res, body);
-            },
-            send: (body: {}) => {
-                if (typeof body === 'string') return send.call(res, body); // TODO: another workaround... but could be a legit string...
-                if (validatedPayloads.has(body)) return send.call(res, body); // TODO: will throw if body is primitive
-                body = validateAndClean(body, routeInfo.responsePayload) as {};
-                validatedPayloads.add(body);
-                return send.call(res, body);
-            },
+            json: (body: unknown) => json.call(res, validateAndClean(body, routeInfo.responsePayload)),
+            jsonp: (body: unknown) => jsonp.call(res, validateAndClean(body, routeInfo.responsePayload)),
+            send: (body: unknown) => typeof body === 'string' ? send.call(res, body) : res.json(body),
         });
 
         // Param/payload checking is done. Pass on to subsequent middleware for further processing.
