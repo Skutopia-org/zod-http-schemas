@@ -122,9 +122,6 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
 }
 
 
-const validatedPayloads = new WeakSet<{}>();
-
-
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
 type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
     Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'> & {
