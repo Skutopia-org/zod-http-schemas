@@ -11,12 +11,13 @@ import {ParamNames, Paths, RequestPayload, ResponsePayload, HttpSchema} from './
 export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(schema: S, expressAppOrRouter: R) {
 
     // Return a new app/router with some overridden methods. The original app/router is left unchaged.
-    let result: DecoratedExpressServer<S, R> = {
+    let result: ExpressRequestHandler = (req, res, next) => expressAppOrRouter(req, res, next);
+    Object.assign(result, {
         ...expressAppOrRouter,
-        get: (path, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
-        post: (path, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
-    };
-    return result;
+        get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
+        post: (path: string, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
+    });
+    return result as unknown as DecoratedExpressServer<S, R>;
 
     // This function wraps express' normal get/post methods, adding runtime checks for schema conformance.
     function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
