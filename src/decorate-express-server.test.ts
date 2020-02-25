@@ -1,6 +1,3 @@
-// TODO: make into mocha tests
-
-
 import axios from 'axios';
 import * as compression from 'compression';
 import * as cookieParser from 'cookie-parser';
@@ -50,6 +47,29 @@ describe('decorateExpressServer', () => {
             requestPayload: t.union(t.undefined, t.object({})),
             responsePayload: t.object({success: t.boolean}),
         }),
+        createHttpRoute({
+            path: '/complex-type',
+            method: 'GET',
+            responsePayload: t.union(
+                t.intersection(
+                    t.object({}),
+                    t.object({
+                        success: t.unit(true),
+                        id: t.string,
+                        outcome: t.array(t.intersection(
+                            t.object({}),
+                            t.object({
+                                flag: t.optional(t.boolean),
+                                kind: t.optional(t.union(t.unit('aaa'), t.unit('bbb'), t.unit('ccc'))),
+                                amount: t.optional(t.number),
+                            }),
+                        )),
+                        amount: t.number,
+                    }),
+                ),
+                t.object({}),
+            ),
+        }),
     ]);
 
     // TODO: type-level tests... just for manual inspection (eg hover over LHSs in VSCode to see inferred types)
@@ -84,6 +104,11 @@ describe('decorateExpressServer', () => {
             req.body
             res.send({success: true});
         });
+        dec.get('/complex-type', async (req, res) => {
+            // v0.2.12 had a build error here: TS2589 Type instantiation is excessively deep and possibly infinite.
+            res.send({}); 
+        });
+
 
         let server = http.createServer(app).listen(8080, async () => {
 
