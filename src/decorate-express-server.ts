@@ -4,16 +4,27 @@ import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
 import {ParamNames, Paths, RequestBody, ResponseBody, HttpSchema} from './create-http-schema';
 
 
+/** Options for decorateExpressServer. */
+export interface DecorateExpressServerOptions<S extends HttpSchema, R extends IRouter> {
+
+    /** Type schema describing the endpoints handled by the express server. */
+    schema: S;
+
+    /** Express app or router. */
+    router: R;
+}
+
+
 /**
  * Returns a decorated copy of the given express application or router, with strongly-typed `get`/`post` methods
  * and runtime validation checks on request/response bodies. The given app/router is not modified.
  */
-export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(schema: S, expressAppOrRouter: R) {
+export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(options: DecorateExpressServerOptions<S, R>) {
 
     // Return a new app/router with some overridden methods. The original app/router is left unchaged.
-    let result: ExpressRequestHandler = (req, res, next) => expressAppOrRouter(req, res, next);
+    let result: ExpressRequestHandler = (req, res, next) => options.router(req, res, next);
     Object.assign(result, {
-        ...expressAppOrRouter,
+        ...options.router,
         get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
         post: (path: string, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
     });
@@ -23,7 +34,7 @@ export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(s
     function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
 
         // Get the route info from the schema for this method/path.
-        let matchingRoutes = schema.filter(r => r.method === method && r.path === path);
+        let matchingRoutes = options.schema.filter(r => r.method === method && r.path === path);
         let routeInfo = matchingRoutes[0];
         if (matchingRoutes.length !== 1) {
             const problem = matchingRoutes.length > 1 ? 'multiple routes' : 'no route';
@@ -47,7 +58,7 @@ export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(s
         // Also prepend a middleware that ensures req/res bodies are validated and have excess properties removed.
         const m = method.toLowerCase() as 'get' | 'post';
         const checkBodyMiddleware = validateAndCleanBodies(routeInfo);
-        expressAppOrRouter[m](path, checkBodyMiddleware, ...errorPropagatingHandlers);
+        options.router[m](path, checkBodyMiddleware, ...errorPropagatingHandlers);
     }
 }
 

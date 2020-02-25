@@ -83,7 +83,7 @@ describe('decorateExpressServer', () => {
 
     it('works', async () => {
         const app = express();
-        const dec = decorateExpressServer(schema, app);
+        const dec = decorateExpressServer({schema, router: app});
         dec.get('/do-thing', middleware1, (req, res) => {
             //req.params.ccc
             req.body
