@@ -6,7 +6,7 @@ import * as helmet from 'helmet';
 import * as http from 'http';
 import {t} from 'rtti';
 import {decorateExpressServer} from './decorate-express-server';
-import {createHttpRoute, createHttpSchema, ParamNames, Paths, RequestPayload, ResponsePayload} from './create-http-schema';
+import {createHttpRoute, createHttpSchema, ParamNames, Paths, RequestBody, ResponseBody} from './create-http-schema';
 
 
 describe('decorateExpressServer', () => {
@@ -22,7 +22,7 @@ describe('decorateExpressServer', () => {
             method: 'POST',
             path: '/do-thing',
             // TODO: paramNames: ['a123', 'a456'],
-            requestPayload: t.object({
+            requestBody: t.object({
                 foo: t.string,
                 bar: t.unit(42),
             }),
@@ -31,26 +31,26 @@ describe('decorateExpressServer', () => {
             method: 'GET',
             path: '/do-thing',
             // TODO: paramNames: ['ccc', 'ddd'],
-            //requestPayload: t.undefined,
-            responsePayload: t.unit(42),
+            //requestBody: t.undefined,
+            responseBody: t.unit(42),
         }),
         createHttpRoute({
             method: 'POST',
             path: '/other-thing',
             paramNames: [],
-            requestPayload: t.array(t.number),
-            responsePayload: t.date,
+            requestBody: t.array(t.number),
+            responseBody: t.date,
         }),
         createHttpRoute({
             method: 'GET',
             path: '/healthcheck',
-            requestPayload: t.union(t.undefined, t.object({})),
-            responsePayload: t.object({success: t.boolean}),
+            requestBody: t.union(t.undefined, t.object({})),
+            responseBody: t.object({success: t.boolean}),
         }),
         createHttpRoute({
             path: '/complex-type',
             method: 'GET',
-            responsePayload: t.union(
+            responseBody: t.union(
                 t.intersection(
                     t.object({}),
                     t.object({
@@ -73,8 +73,8 @@ describe('decorateExpressServer', () => {
     ]);
 
     // TODO: type-level tests... just for manual inspection (eg hover over LHSs in VSCode to see inferred types)
-    type T1 = RequestPayload<typeof schema, 'POST', '/do-thing'>;
-    type T2 = ResponsePayload<typeof schema, 'POST', '/do-thing'>;
+    type T1 = RequestBody<typeof schema, 'POST', '/do-thing'>;
+    type T2 = ResponseBody<typeof schema, 'POST', '/do-thing'>;
     type T3 = ParamNames<typeof schema, 'POST', '/do-thing'>;
     type T4 = Paths<typeof schema, 'GET'>;
     type T5 = Paths<typeof schema, 'POST'>;

@@ -4,7 +4,7 @@ import {TypeFromTypeInfo, TypeInfo} from 'rtti';
 
 /**
  * Accepts and returns an object that defines the shape of a HTTP API in terms of the routes it responds to, and the
- * shapes of the request/response payloads for each route. The given `schema` is validated and returned as-is.
+ * shapes of the request/response bodies for each route. The given `schema` is validated and returned as-is.
  * HTTP schemas may be passed to `createHttpClient` and/or `decorateExpressServer` to implement the schema on the
  * client-side and/or server-side. See those functions for more details.
  */
@@ -54,8 +54,8 @@ export interface RouteInfo<M extends 'GET' | 'POST', P extends string, N extends
     method: M;
     path: P;
     paramNames?: N[];
-    requestPayload?: TypeInfo;
-    responsePayload?: TypeInfo;
+    requestBody?: TypeInfo;
+    responseBody?: TypeInfo;
 }
 
 
@@ -68,16 +68,16 @@ export type ParamNames<S extends HttpSchema, M extends 'GET' | 'POST', P extends
     = FilterRoutes<S, M, P>['paramNames'] extends Array<infer U> ? Extract<U, string> : never;
 
 
-/** Extracts the request payload type for the given schema/method/path, or undefined if no payload. */
-export type RequestPayload<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
-    = FilterRoutes<S, M, P>['requestPayload'] extends infer U
+/** Extracts the request body type for the given schema/method/path, or undefined if no body type specified. */
+export type RequestBody<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
+    = FilterRoutes<S, M, P>['requestBody'] extends infer U
         ? U extends TypeInfo ? TypeFromTypeInfo<U> : undefined
         : never;
 
 
-/** Extracts the response payload type for the given schema/method/path, or undefined if no payload. */
-export type ResponsePayload<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
-    = FilterRoutes<S, M, P>['responsePayload'] extends infer U
+/** Extracts the response body type for the given schema/method/path, or undefined if no body type specified. */
+export type ResponseBody<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
+    = FilterRoutes<S, M, P>['responseBody'] extends infer U
         ? U extends TypeInfo ? TypeFromTypeInfo<U> : undefined
         : never;
 

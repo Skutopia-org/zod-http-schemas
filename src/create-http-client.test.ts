@@ -11,7 +11,7 @@
 //         method: 'POST',
 //         path: '/do-thing',
 //         paramNames: ['a123', 'a456'],
-//         requestPayload: t.object({
+//         requestBody: t.object({
 //             foo: t.string,
 //             bar: t.unit(42),
 //         }),
@@ -20,20 +20,20 @@
 //         method: 'GET',
 //         path: '/do-thing',
 //         paramNames: ['ccc', 'ddd'],
-//         responsePayload: t.unit(42),
+//         responseBody: t.unit(42),
 //     }),
 //     httpRoute({
 //         method: 'POST',
 //         path: '/other-thing',
 //         paramNames: [],
-//         requestPayload: t.array(t.number),
-//         responsePayload: t.date,
+//         requestBody: t.array(t.number),
+//         responseBody: t.date,
 //     }),
 //     httpRoute({
 //         method: 'GET',
 //         path: '/healthcheck',
-//         requestPayload: t.never,
-//         responsePayload: t.boolean,
+//         requestBody: t.never,
+//         responseBody: t.boolean,
 //     }),
 // ]);
 
@@ -45,16 +45,16 @@
 
 //     let res1 = await client.get('/do-thing', {
 //         params: {ccc: 'ccc', ddd: 'ddd'},
-//         //payload: 42,
+//         //body: 42,
 //     });
 
 //     let res2 = await client.post('/do-thing', {
 //         params: {a123: '11', a456: '22'},
-//         payload: {bar: 42, foo: 'sdsdf'},
+//         body: {bar: 42, foo: 'sdsdf'},
 //     });
 
 //     let res3 = await client.post('/other-thing', {
-//         payload: [1, 2, 3],
+//         body: [1, 2, 3],
 //     });
 
 //     let res4 = await client.get('/healthcheck');

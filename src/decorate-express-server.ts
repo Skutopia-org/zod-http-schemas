@@ -1,12 +1,12 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {IRouter, NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
 import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
-import {ParamNames, Paths, RequestPayload, ResponsePayload, HttpSchema} from './create-http-schema';
+import {ParamNames, Paths, RequestBody, ResponseBody, HttpSchema} from './create-http-schema';
 
 
 /**
  * Returns a decorated copy of the given express application or router, with strongly-typed `get`/`post` methods
- * and runtime validation checks on request/response payloads. The given app/router is not modified.
+ * and runtime validation checks on request/response bodies. The given app/router is not modified.
  */
 export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(schema: S, expressAppOrRouter: R) {
 
@@ -44,10 +44,10 @@ export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(s
         });
 
         // Register the list of wrapped handlers for the given method/path with the underlying express app/router.
-        // Also prepend a middleware that ensures req/res payloads are validated and have excess properties removed.
+        // Also prepend a middleware that ensures req/res bodies are validated and have excess properties removed.
         const m = method.toLowerCase() as 'get' | 'post';
-        const checkPayloadMiddleware = validateAndCleanPayloads(routeInfo);
-        expressAppOrRouter[m](path, checkPayloadMiddleware, ...errorPropagatingHandlers);
+        const checkBodyMiddleware = validateAndCleanBodies(routeInfo);
+        expressAppOrRouter[m](path, checkBodyMiddleware, ...errorPropagatingHandlers);
     }
 }
 
@@ -67,7 +67,7 @@ export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P ext
 
 
 /** Create a middleware function that validates request params/body and response body for the given `routeInfo`. */
-function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHandler {
+function validateAndCleanBodies(routeInfo: HttpSchema[any]): ExpressRequestHandler {
     return (req, res, next) => {
 
         // Validate the incoming request params (parsed out of the request path by express) against the schema.
@@ -87,34 +87,34 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
             return next(new Error(msg));
         }
 
-        // Validate and clean the incoming request payload against the schema. If the request payload is invalid,
+        // Validate and clean the incoming request body against the schema. If the request body is invalid,
         // it is a client error, so a 400 response is sent and there is no further handling for this request.
         try {
             // TODO: test that this actually replaces the req.body value
-            // TODO: doc that req.body will always be an empty object, and not undefined, if no payload was sent
-            req.body = validateAndClean(req.body, routeInfo.requestPayload ?? t.object({}));
+            // TODO: doc that req.body will always be an empty object, and not undefined, if no body was sent
+            req.body = validateAndClean(req.body, routeInfo.requestBody ?? t.object({}));
         }
         catch (err) {
-            res.status(400).send('The request payload did not conform to the required schema.');
+            res.status(400).send('The request body did not conform to the required schema.');
             return;
         }
 
-        // Ensure outgoing response payloads are validated and cleaned against the schema before they are sent.
+        // Ensure outgoing response bodies are validated and cleaned against the schema before they are sent.
         // This is done by wrapping methods on the `res` object, so subsequent handlers call the wrapped versions.
         // Note that validation errors will throw in the handler that caused them, in which case the error will
         // be passed to `next` and hence any error handling middleware (by default will respond with a 500 error).
         const {json, jsonp, send} = res; // the original json/jsonp/send methods to be wrapped
         res = Object.assign(res, {
-            json: (body: unknown) => json.call(res, validateAndClean(body, routeInfo.responsePayload)),
-            jsonp: (body: unknown) => jsonp.call(res, validateAndClean(body, routeInfo.responsePayload)),
+            json: (body: unknown) => json.call(res, validateAndClean(body, routeInfo.responseBody)),
+            jsonp: (body: unknown) => jsonp.call(res, validateAndClean(body, routeInfo.responseBody)),
             send: (body: unknown) => typeof body === 'string' ? send.call(res, body) : res.json(body),
         });
 
-        // Param/payload checking is done. Pass on to subsequent middleware for further processing.
+        // Param/body checking is done. Pass on to subsequent middleware for further processing.
         next();
     };
 
-    // Helper function to runtime-validate that the payload is the expected type, and to remove excess properties.
+    // Helper function to runtime-validate that the body is the expected type, and to remove excess properties.
     function validateAndClean(value: unknown, type: TypeInfo = t.undefined) {
         assert(type, value);
         value = removeExcessProperties(type, value);
@@ -126,7 +126,7 @@ function validateAndCleanPayloads(routeInfo: HttpSchema[any]): ExpressRequestHan
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
 type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
     Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'> & {
-        body: RequestPayload<S, M, P> extends undefined ? {} : RequestPayload<S, M, P>;
+        body: RequestBody<S, M, P> extends undefined ? {} : RequestBody<S, M, P>;
         [Symbol.asyncIterator](): AsyncIterableIterator<any>; // must add this back; not preserved by mapped types above
     };
 
@@ -135,7 +135,7 @@ type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[an
 type TypedResponse<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
     Omit<Response, 'end' | 'json' | 'jsonp' | 'send'> & {
         end: never;
-        json: (body: ResponsePayload<S, M, P>) => TypedResponse<S, M, P>;
-        jsonp: (body: ResponsePayload<S, M, P>) => TypedResponse<S, M, P>;
-        send: (body: ResponsePayload<S, M, P>) => TypedResponse<S, M, P>;
+        json: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
+        jsonp: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
+        send: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
     };
