@@ -25,7 +25,7 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
 export function decorateExpressRouter<
     Schema extends HttpSchema,
     App extends IRouter,
-    Req extends TypeInfo
+    Req extends TypeInfo = t.unknown
 >(options: DecorateExpressRouterOptions<Schema, App, Req>) {
 
     // Return a new app/router with some overridden methods. The original app/router is left unchaged.
