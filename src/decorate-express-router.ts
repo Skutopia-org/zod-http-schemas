@@ -1,17 +1,20 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {IRouter, NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
-import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
+import {assert, removeExcessProperties, t, TypeFromTypeInfo, TypeInfo} from 'rtti';
 import {ParamNames, Paths, RequestBody, ResponseBody, HttpSchema} from './create-http-schema';
 
 
-/** Options for decorateExpressServer. */
-export interface DecorateExpressServerOptions<S extends HttpSchema, R extends IRouter> {
+/** Options for decorateExpressRouter. */
+export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App extends IRouter, Req extends TypeInfo> {
 
     /** Type schema describing the endpoints handled by the express server. */
-    schema: S;
+    schema: Schema;
 
     /** Express app or router. */
-    router: R;
+    router: App;
+
+    /** TODO: doc... */
+    requestProps?: Req;
 }
 
 
@@ -19,7 +22,11 @@ export interface DecorateExpressServerOptions<S extends HttpSchema, R extends IR
  * Returns a decorated copy of the given express application or router, with strongly-typed `get`/`post` methods
  * and runtime validation checks on request/response bodies. The given app/router is not modified.
  */
-export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(options: DecorateExpressServerOptions<S, R>) {
+export function decorateExpressRouter<
+    Schema extends HttpSchema,
+    App extends IRouter,
+    Req extends TypeInfo
+>(options: DecorateExpressRouterOptions<Schema, App, Req>) {
 
     // Return a new app/router with some overridden methods. The original app/router is left unchaged.
     let result: ExpressRequestHandler = (req, res, next) => options.router(req, res, next);
@@ -28,7 +35,7 @@ export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(o
         get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
         post: (path: string, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
     });
-    return result as unknown as DecoratedExpressServer<S, R>;
+    return result as unknown as DecoratedExpressRouter<Schema, App, Req>;
 
     // This function wraps express' normal get/post methods, adding runtime checks for schema conformance.
     function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
@@ -55,30 +62,40 @@ export function decorateExpressServer<S extends HttpSchema, R extends IRouter>(o
         });
 
         // Register the list of wrapped handlers for the given method/path with the underlying express app/router.
-        // Also prepend a middleware that ensures req/res bodies are validated and have excess properties removed.
+        // Also prepend middleware that ensures req/res objects are validated and have excess properties removed.
         const m = method.toLowerCase() as 'get' | 'post';
-        const checkBodyMiddleware = validateAndCleanBodies(routeInfo);
-        options.router[m](path, checkBodyMiddleware, ...errorPropagatingHandlers);
+        const validateRequestProps = createRequestPropValidationMiddleware(options.requestProps || t.unknown);
+        const validateBodies = createBodyValidationMiddleware(routeInfo);
+        options.router[m](path, validateRequestProps, validateBodies, ...errorPropagatingHandlers);
     }
 }
 
 
 /** A strongly-typed express application/router. */
-export type DecoratedExpressServer<S extends HttpSchema, R extends IRouter> =
+export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req extends TypeInfo> =
     & Omit<R, 'get' | 'post'>
     & {
-        get<P extends Paths<S, 'GET'>>(path: P, ...handlers: RequestHandler<S, 'GET', P>[]): void;
-        post<P extends Paths<S, 'POST'>>(path: P, ...handlers: RequestHandler<S, 'POST', P>[]): void;
+        get<P extends Paths<S, 'GET'>>(path: P, ...handlers: RequestHandler<S, 'GET', P, Req>[]): void;
+        post<P extends Paths<S, 'POST'>>(path: P, ...handlers: RequestHandler<S, 'POST', P, Req>[]): void;
     };
 
 
 /** A strongly-typed express request handler. */
-export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
-    (req: TypedRequest<S, M, P>, res: TypedResponse<S, M, P>, next: NextFunction) => void | Promise<void>;
+export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req extends TypeInfo> =
+    (req: TypedRequest<S, M, P, Req>, res: TypedResponse<S, M, P>, next: NextFunction) => void | Promise<void>;
 
 
-/** Create a middleware function that validates request params/body and response body for the given `routeInfo`. */
-function validateAndCleanBodies(routeInfo: HttpSchema[any]): ExpressRequestHandler {
+/** Creates a middleware function that validates request properties against the given schema. */
+function createRequestPropValidationMiddleware(requestProps: TypeInfo): ExpressRequestHandler {
+    return (req, _, next) => {
+        assert(requestProps, req);
+        next();
+    };
+}
+
+
+/** Creates a middleware function that validates request params/body and response body for the given `routeInfo`. */
+function createBodyValidationMiddleware(routeInfo: HttpSchema[any]): ExpressRequestHandler {
     return (req, res, next) => {
 
         // Validate the incoming request params (parsed out of the request path by express) against the schema.
@@ -135,8 +152,10 @@ function validateAndCleanBodies(routeInfo: HttpSchema[any]): ExpressRequestHandl
 
 
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
-type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
-    Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'> & {
+type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req extends TypeInfo> =
+    Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'>
+    & TypeFromTypeInfo<Req>
+    & {
         body: RequestBody<S, M, P> extends undefined ? {} : RequestBody<S, M, P>;
         [Symbol.asyncIterator](): AsyncIterableIterator<any>; // must add this back; not preserved by mapped types above
     };

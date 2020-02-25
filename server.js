@@ -1,1 +1,1 @@
-module.exports = require('./dist/decorate-express-server');
+module.exports = require('./dist/decorate-express-router');

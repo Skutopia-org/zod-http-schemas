@@ -1,1 +1,1 @@
-export {decorateExpressServer, DecoratedExpressServer, RequestHandler} from './dist/decorate-express-server';
+export {decorateExpressRouter, DecoratedExpressRouter, RequestHandler} from './dist/decorate-express-router';

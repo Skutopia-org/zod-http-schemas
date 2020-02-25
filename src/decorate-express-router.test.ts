@@ -5,7 +5,7 @@ import * as express from 'express';
 import * as helmet from 'helmet';
 import * as http from 'http';
 import {t} from 'rtti';
-import {decorateExpressServer} from './decorate-express-server';
+import {decorateExpressRouter} from './decorate-express-router';
 import {createHttpRoute, createHttpSchema, ParamNames, Paths, RequestBody, ResponseBody} from './create-http-schema';
 
 
@@ -15,6 +15,10 @@ describe('decorateExpressServer', () => {
     let middleware1 = compression();
     let middleware2 = helmet();
     let middleware3 = cookieParser();
+    let addExtraProps: express.RequestHandler = (req, _, next) => {
+        Object.assign(req, {aaa: 42, bbb: 'foo', ccc: true});
+        next();
+    };
 
     // Define schema used across tests
     const schema = createHttpSchema([
@@ -80,42 +84,50 @@ describe('decorateExpressServer', () => {
     type T5 = Paths<typeof schema, 'POST'>;
 
 
-
     it('works', async () => {
-        const app = express();
-        const dec = decorateExpressServer({schema, router: app});
-        dec.get('/do-thing', middleware1, (req, res) => {
+        const typedRouter = decorateExpressRouter({
+            schema,
+            router: express.Router(),
+            requestProps: t.object({
+                aaa: t.number,
+                bbb: t.string,
+            }),
+        });
+        typedRouter.get('/do-thing', middleware1, (req, res) => {
             //req.params.ccc
             req.body
+            req.aaa
+            req.bbb
+            //req.ccc
             res.send(42);
         });
-        dec.post('/do-thing', middleware2, middleware3, (req, res) => {
+        typedRouter.post('/do-thing', middleware2, middleware3, (req, res) => {
             //req.params.a456;
             req.body.bar;
             //res.send('foo');
         });
-        dec.post('/other-thing', (req, res) => {
+        typedRouter.post('/other-thing', (req, res) => {
             //req.params.anything
             req.body[1].toExponential
             res.send(new Date());
         });
-        dec.get('/healthcheck', (req, res) => {
+        typedRouter.get('/healthcheck', (req, res) => {
             req.params
             req.body
             res.send({success: true});
         });
-        dec.get('/complex-type', async (req, res) => {
+        typedRouter.get('/complex-type', async (req, res) => {
             // v0.2.12 had a build error here: TS2589 Type instantiation is excessively deep and possibly infinite.
             res.send({}); 
         });
 
+        const app = express();
+        app.use(addExtraProps, typedRouter as express.Router); // TODO: can we remove the need to cast this somehow?
 
         let server = http.createServer(app).listen(8080, async () => {
 
             // do some tests...
             let res1 = await axios.get('http://localhost:8080/healthcheck');
-
-
 
             // Terminate the server...
             server.close(() => {
