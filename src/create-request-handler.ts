@@ -1,6 +1,6 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {NextFunction, Request, Response} from 'express';
-import {TypeFromTypeInfo, TypeInfo} from 'rtti';
+import {t, TypeFromTypeInfo, TypeInfo} from 'rtti';
 import {ParamNames, RequestBody, ResponseBody, HttpSchema} from './create-http-schema';
 
 
@@ -12,7 +12,7 @@ export function createRequestHandler<
     S extends HttpSchema,
     M extends 'GET' | 'POST',
     P extends S[any]['path'],
-    Req extends TypeInfo,
+    Req extends TypeInfo = t.unknown,
 >(_schema: S, _method: M, _path: P ,handler: RequestHandler<S, M, P, Req>) {
     return handler;
 }
