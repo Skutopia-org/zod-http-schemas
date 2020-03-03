@@ -1,7 +1,8 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
-import {IRouter, NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
-import {assert, removeExcessProperties, t, TypeFromTypeInfo, TypeInfo} from 'rtti';
-import {ParamNames, Paths, RequestBody, ResponseBody, HttpSchema} from './create-http-schema';
+import {IRouter, RequestHandler as ExpressRequestHandler} from 'express';
+import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
+import {Paths, HttpSchema} from './create-http-schema';
+import {RequestHandler} from './create-request-handler';
 
 
 /** Options for decorateExpressRouter. */
@@ -80,11 +81,6 @@ export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req 
     };
 
 
-/** A strongly-typed express request handler. */
-export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req extends TypeInfo> =
-    (req: TypedRequest<S, M, P, Req>, res: TypedResponse<S, M, P>, next: NextFunction) => void | Promise<void>;
-
-
 /** Creates a middleware function that validates request properties against the given schema. */
 function createRequestPropValidationMiddleware(requestProps: TypeInfo): ExpressRequestHandler {
     return (req, _, next) => {
@@ -149,23 +145,3 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any]): ExpressRequ
         return value;
     }
 }
-
-
-/** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
-type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req extends TypeInfo> =
-    Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'>
-    & TypeFromTypeInfo<Req>
-    & {
-        body: RequestBody<S, M, P> extends undefined ? {} : RequestBody<S, M, P>;
-        [Symbol.asyncIterator](): AsyncIterableIterator<any>; // must add this back; not preserved by mapped types above
-    };
-
-
-/** A strongly-typed express response. Some original props are omited and replaced with typed ones. */
-type TypedResponse<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
-    Omit<Response, 'end' | 'json' | 'jsonp' | 'send'> & {
-        end: never;
-        json: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
-        jsonp: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
-        send: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
-    };
