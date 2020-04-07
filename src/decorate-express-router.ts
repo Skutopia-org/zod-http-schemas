@@ -74,6 +74,7 @@ export function decorateExpressRouter<
 
 /** A strongly-typed express application/router. */
 export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req extends TypeInfo> =
+    & ExpressRequestHandler
     & Omit<R, 'get' | 'post'>
     & {
         get<P extends Paths<S, 'GET'>>(path: P, ...handlers: RequestHandler<S, 'GET', P, Req>[]): void;

@@ -122,7 +122,7 @@ describe('decorateExpressServer', () => {
         });
 
         const app = express();
-        app.use(addExtraProps, typedRouter as express.Router); // TODO: can we remove the need to cast this somehow?
+        app.use(addExtraProps, typedRouter);
 
         let server = http.createServer(app).listen(8080, async () => {
 
