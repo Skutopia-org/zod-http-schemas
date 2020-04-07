@@ -1,1 +1,1 @@
-module.exports = require('./dist/create-http-client');
+module.exports = require('./dist/client');

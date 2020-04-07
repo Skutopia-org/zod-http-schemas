@@ -1,7 +1,8 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {NextFunction, Request, Response} from 'express';
 import {t, TypeFromTypeInfo, TypeInfo} from 'rtti';
-import {ParamNames, RequestBody, ResponseBody, HttpSchema} from './create-http-schema';
+import {ParamNames, RequestBody, ResponseBody} from '../util';
+import {HttpSchema} from '../shared';
 
 
  /**

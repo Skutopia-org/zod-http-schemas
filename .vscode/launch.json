@@ -1,0 +1,21 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "_Mocha Explorer",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "protocol": "inspector",
+            "timeout": 5000,
+            "stopOnEntry": false,
+            "skipFiles": [
+                "<node_internals>/**/*.js",
+                "${workspaceFolder}/**/node_modules/**/*.js",
+            ]
+        }
+    ]
+}

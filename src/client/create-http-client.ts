@@ -1,6 +1,7 @@
 import axios from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
-import {HttpSchema, ParamNames, Paths, RequestBody, ResponseBody} from './create-http-schema';
+import {ParamNames, Paths, RequestBody, ResponseBody} from '../util';
+import {HttpSchema} from '../shared';
 
 
 /** Returns a strongly typed object for making requests to a remote HTTP server that implements the given `schema`. */
@@ -8,6 +9,7 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
 
     // Create an axios client for making actual HTTP requests. Initialise it with the relevent given options, if any.
     const axiosClient = axios.create({
+        baseURL: options?.baseURL,
         timeout: options?.timeout ?? 0,
         withCredentials: options?.withCredentials ?? false,
     });
@@ -44,6 +46,9 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
 
 /** Options for `createHttpClient`. */
 export interface HttpClientOptions {
+    /** Will be prepended request paths unless they are absolute. Default is blank. */
+    baseURL: string;
+
     /**
      * Specifies the number of milliseconds before the request times out.
      * A value of zero indicates no timeout should be applied. Default is zero.

@@ -1,1 +1,1 @@
-export {createHttpClient, HttpClient, HttpClientOptions} from './dist/create-http-client';
+export * from './dist/client';
