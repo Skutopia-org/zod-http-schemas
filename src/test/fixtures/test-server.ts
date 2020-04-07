@@ -13,9 +13,9 @@ export function createTestServer() {
     // Implement the HTTP schema using an Express Router instance.
     const typedRoutes = decorateExpressRouter({
         schema: testSchema,
-        router: express.Router(),
+        router: express.Router(), // use a blank new router
         requestProps: t.object({
-            // Prop added to `req` by useragent middleware
+            // `req.useragent` prop added by useragent middleware
             useragent: t.object({
                 isMobile: t.boolean,
                 isDesktop: t.boolean,
