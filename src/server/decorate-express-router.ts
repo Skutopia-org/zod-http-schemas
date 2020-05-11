@@ -1,4 +1,5 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
+import * as express from 'express';
 import {IRouter, RequestHandler as ExpressRequestHandler} from 'express';
 import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
 import {HttpSchema} from '../shared';
@@ -12,8 +13,8 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
     /** Type schema describing the endpoints handled by the express server. */
     schema: Schema;
 
-    /** Express app or router. */
-    router: App;
+    /** Express app or router. Default value is `express.Router()`. */
+    router?: App;
 
     /** TODO: doc... */
     requestProps?: Req;
@@ -30,8 +31,9 @@ export function decorateExpressRouter<
     Req extends TypeInfo = t.unknown
 >(options: DecorateExpressRouterOptions<Schema, App, Req>) {
 
-    // Return a new app/router with some overridden methods. The original app/router is left unchaged.
-    let result: ExpressRequestHandler = (req, res, next) => options.router(req, res, next);
+    // Return a new app/router with some overridden methods. The original app/router is left unchanged.
+    let router = options.router ?? express.Router();
+    let result: ExpressRequestHandler = (req, res, next) => router(req, res, next);
     Object.assign(result, {
         ...options.router,
         get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
@@ -68,7 +70,7 @@ export function decorateExpressRouter<
         const m = method.toLowerCase() as 'get' | 'post';
         const validateRequestProps = createRequestPropValidationMiddleware(options.requestProps || t.unknown);
         const validateBodies = createBodyValidationMiddleware(routeInfo);
-        options.router[m](path, validateRequestProps, validateBodies, ...errorPropagatingHandlers);
+        router[m](path, validateRequestProps, validateBodies, ...errorPropagatingHandlers);
     }
 }
 
