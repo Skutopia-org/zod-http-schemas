@@ -38,12 +38,11 @@ export function createTestServer() {
     typedRoutes.post('/sum', (req, res) => {
         let result = req.body.reduce((sum, n) => sum + n, 0);
         res.send(result);
-
     });
     
     typedRoutes.post('/product', (req, res) => {
         let result = req.body.reduce((sum, n) => sum * n, 1);
-        res.send(result);
+        res.status(200).send(result);
     });
 
     // Create an Express Application and add middleware to it, including our HTTP schema implementation.

@@ -36,9 +36,10 @@ Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'>
 
 /** A strongly-typed express response. Some original props are omited and replaced with typed ones. */
 type TypedResponse<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
-Omit<Response, 'end' | 'json' | 'jsonp' | 'send'> & {
+Omit<Response, 'end' | 'json' | 'jsonp' | 'send' | 'status'> & {
     end: never;
     json: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
     jsonp: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
     send: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
+    status: (code: number) => TypedResponse<S, M, P>;
 };
