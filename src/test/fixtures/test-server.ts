@@ -26,7 +26,7 @@ export function createTestServer() {
         }),
     });
     
-    typedRoutes.get('/random-numbers', (req, res) => {
+    typedRoutes.get('/random-numbers', [log], (req, res) => {
         req.useragent.isMobile;
         res.send([
             Math.random(),
@@ -35,12 +35,12 @@ export function createTestServer() {
         ]);
     });
     
-    typedRoutes.post('/sum', (req, res) => {
+    typedRoutes.post('/sum', [log], (req, res) => {
         let result = req.body.reduce((sum, n) => sum + n, 0);
         res.send(result);
     });
     
-    typedRoutes.post('/product', (req, res) => {
+    typedRoutes.post('/product', [log], (req, res) => {
         let result = req.body.reduce((sum, n) => sum * n, 1);
         res.status(200).send(result);
     });
@@ -70,3 +70,9 @@ export function createTestServer() {
 
 
 let server: http.Server;
+
+
+const log: express.RequestHandler = (req, _, next) => {
+    console.log(`Incoming request: ${req.path}`);
+    next();
+}

@@ -1,6 +1,6 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import * as express from 'express';
-import {IRouter, RequestHandler as ExpressRequestHandler} from 'express';
+import {IRouter, RequestHandler as ExpressRequestHandler, ErrorRequestHandler} from 'express';
 import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
 import {HttpSchema} from '../shared';
 import {Paths} from '../util';
@@ -52,6 +52,9 @@ export function decorateExpressRouter<
             throw new Error(`Schema has ${problem} for method '${method}' and path '${path}'`);
         }
 
+        // Elements of `handlers` can actually be arrays, so flatten the `handlers` array before proceeding.
+        handlers = flatDeep(handlers);
+
         // Wrap each handler to ensure that if it throws or rejects, then it calls `next` with the error.
         // This ensures that *all* unhandled errors in route handlers are propagated to error middleware (if any).
         let errorPropagatingHandlers: ExpressRequestHandler[] = handlers.map(handler => async (req, res, next) => {
@@ -80,8 +83,14 @@ export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req 
     & ExpressRequestHandler
     & Omit<R, 'get' | 'post'>
     & {
-        get<P extends Paths<S, 'GET'>>(path: P, ...handlers: RequestHandler<S, 'GET', P, Req>[]): void;
-        post<P extends Paths<S, 'POST'>>(path: P, ...handlers: RequestHandler<S, 'POST', P, Req>[]): void;
+        get<P extends Paths<S, 'GET'>>(
+            path: P,
+            ...handlers: Array<RequestHandler<S, 'GET', P, Req> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+        ): void;
+        post<P extends Paths<S, 'POST'>>(
+            path: P,
+            ...handlers: Array<RequestHandler<S, 'POST', P, Req> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+        ): void;
     };
 
 
@@ -149,3 +158,10 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any]): ExpressRequ
         return value;
     }
 }
+
+
+// Helper function - equivelent of Array#flat, which is newish.
+// See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat
+function flatDeep(arr: any): any {
+    return arr.reduce((acc: any, val: any) => acc.concat(Array.isArray(val) ? flatDeep(val) : val), []);
+};
