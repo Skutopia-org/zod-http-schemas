@@ -29,5 +29,9 @@ describe('Implementing a HTTP client and server', () => {
         // POST /product
         let prod = await client.post('/product', {body: [10, 20, 30, 40]});
         expect(prod).equals(240_000);
+
+        // GET *
+        let blah = await client.get('/blah' as '*', {body: 'hello blah'});
+        expect(blah).equals('hello blah');
     });
 });

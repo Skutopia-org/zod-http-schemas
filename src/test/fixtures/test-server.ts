@@ -45,6 +45,10 @@ export function createTestServer() {
         res.status(200).send(result);
     });
 
+    typedRoutes.get('*', [log], (req, res) => {
+        res.status(200).send(req.body);
+    });
+
     // Create an Express Application and add middleware to it, including our HTTP schema implementation.
     const app = express();
     app.use(compression());

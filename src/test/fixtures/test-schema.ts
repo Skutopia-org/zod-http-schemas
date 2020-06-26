@@ -19,4 +19,10 @@ export const testSchema = createHttpSchema([
         requestBody: t.array(t.number),
         responseBody: t.number,
     }),
+    createHttpRoute({
+        method: 'GET',
+        path: '*',
+        requestBody: t.unknown,
+        responseBody: t.unknown,
+    }),
 ]);
