@@ -24,6 +24,9 @@ export function createTestServer() {
                 // ...and more
             }),
         }),
+        onValidationError: (_, res) => {
+            res.status(200).send({success: false, code: 'MY_CUSTOM_VALIDATION_ERROR'});
+        },
     });
     
     typedRoutes.get('/random-numbers', [log], (req, res) => {

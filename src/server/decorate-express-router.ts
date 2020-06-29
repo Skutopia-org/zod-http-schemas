@@ -18,6 +18,12 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
 
     /** TODO: doc... */
     requestProps?: Req;
+
+    /**
+     * Optional request handler to delegate to if a server-side validation error occurs. If this option is not
+     * specified, the default behaviour is to respond with a 400 status code.
+     */
+    onValidationError?: ExpressRequestHandler;
 }
 
 
@@ -72,7 +78,7 @@ export function decorateExpressRouter<
         // Also prepend middleware that ensures req/res objects are validated and have excess properties removed.
         const m = method.toLowerCase() as 'get' | 'post';
         const validateRequestProps = createRequestPropValidationMiddleware(options.requestProps || t.unknown);
-        const validateBodies = createBodyValidationMiddleware(routeInfo);
+        const validateBodies = createBodyValidationMiddleware(routeInfo, options.onValidationError);
         router[m](path, validateRequestProps, validateBodies, ...errorPropagatingHandlers);
     }
 }
@@ -104,7 +110,11 @@ function createRequestPropValidationMiddleware(requestProps: TypeInfo): ExpressR
 
 
 /** Creates a middleware function that validates request params/body and response body for the given `routeInfo`. */
-function createBodyValidationMiddleware(routeInfo: HttpSchema[any]): ExpressRequestHandler {
+function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidationError?: ExpressRequestHandler): ExpressRequestHandler {
+    onValidationError = onValidationError ?? ((_, res) => {
+        res.status(400).send('The request body did not conform to the required schema.');
+    });
+
     return (req, res, next) => {
 
         // Validate the incoming request params (parsed out of the request path by express) against the schema.
@@ -123,14 +133,16 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any]): ExpressRequ
         }
 
         // Validate and clean the incoming request body against the schema. If the request body is invalid,
-        // it is a client error, so a 400 response is sent and there is no further handling for this request.
+        // delegate to the `onValidationError` handler, which is expected to respond appropriately.
+        // If no `onValidationError` callback is given, the default behaviour is to send a 400 response, since
+        // having an invalid request structure signifies a client error.
         try {
             // TODO: test that this actually replaces the req.body value
             // TODO: doc that req.body will always be an empty object, and not undefined, if no body was sent
             req.body = validateAndClean(req.body, routeInfo.requestBody ?? t.object({}));
         }
         catch (err) {
-            res.status(400).send('The request body did not conform to the required schema.');
+            onValidationError!(req, res, next);
             return;
         }
 
