@@ -1,6 +1,6 @@
 {
     "name": "http-schemas",
-    "version": "0.7.2",
+    "version": "0.8.0",
     "description": "Strongly-typed HTTP schemas",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -55,6 +55,6 @@
         "axios": "^0.19.0",
         "express": "^4.17.1",
         "path-to-regexp": "^4.0.2",
-        "rtti": "^0.3.2"
+        "rtti": "^0.3.3"
     }
 }

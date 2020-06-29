@@ -27,7 +27,9 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
         // Create the actual URL by substituting params (if any) into the path pattern.
         // NB: what axios calls `params` are really queryparams, so different from our `params`,
         // which are part of the path that is pattern-matched by express on the server.
-        let url = pathToRegExp.compile(path)(info?.params);
+        // NB2: pathToRegExp doesn't handle '*' wildcards like express, so we substitute those manually below.
+        let i = 0;
+        let url = pathToRegExp.compile(path)(info?.params).replace(/\*/g, () => info?.params[i++]);
 
         // Make the HTTP request through axios. We don't validate outgoing/incoming
         // bodies, since this is running on an untrusted client anyway.

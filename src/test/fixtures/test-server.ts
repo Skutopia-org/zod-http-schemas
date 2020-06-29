@@ -24,6 +24,9 @@ export function createTestServer() {
                 // ...and more
             }),
         }),
+        onValidationError: (_, res) => {
+            res.status(200).send({success: false, code: 'MY_CUSTOM_VALIDATION_ERROR'});
+        },
     });
     
     typedRoutes.get('/random-numbers', [log], (req, res) => {
@@ -43,6 +46,15 @@ export function createTestServer() {
     typedRoutes.post('/product', [log], (req, res) => {
         let result = req.body.reduce((sum, n) => sum * n, 1);
         res.status(200).send(result);
+    });
+
+    typedRoutes.get('*', [log], (req, res) => {
+        if (req.params['0'] === '/hello') {
+            res.status(200).send(`Hello, ${req.body.name}!`);
+        }
+        else {
+            res.status(500).send('Server error');
+        }
     });
 
     // Create an Express Application and add middleware to it, including our HTTP schema implementation.
