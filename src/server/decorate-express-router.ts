@@ -115,12 +115,10 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any]): ExpressRequ
         let expectedParamNames = routeInfo.paramNames || [];
         let missingParamNames = expectedParamNames.filter(p => !actualParamNames.includes(p));
         let excessParamNames = actualParamNames.filter(p => !expectedParamNames.includes(p));
-        let nonStringParamNames = actualParamNames.filter(p => typeof req.params[p] !== 'string');
-        if (missingParamNames.length > 0 || excessParamNames.length > 0 || nonStringParamNames.length > 0) {
+        if (missingParamNames.length > 0 || excessParamNames.length > 0) {
             let msg = 'The request parameters did not conform to the required schema.';
-            if (missingParamNames.length > 0) msg += ` Missing: ${missingParamNames.join(', ')}.`;
-            if (excessParamNames.length > 0) msg += ` Excess: ${excessParamNames.join(', ')}.`;
-            if (nonStringParamNames.length > 0) msg += ` Non-string: ${nonStringParamNames.join(', ')}.`;
+            if (missingParamNames.length > 0) msg += ` Missing: "${missingParamNames.join('", "')}".`;
+            if (excessParamNames.length > 0) msg += ` Excess: "${excessParamNames.join('", "')}".`;
             return next(new Error(msg));
         }
 

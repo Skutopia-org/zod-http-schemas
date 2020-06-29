@@ -46,7 +46,12 @@ export function createTestServer() {
     });
 
     typedRoutes.get('*', [log], (req, res) => {
-        res.status(200).send(req.body);
+        if (req.params['0'] === '/hello') {
+            res.status(200).send(`Hello, ${req.body.name}!`);
+        }
+        else {
+            res.status(500).send('Server error');
+        }
     });
 
     // Create an Express Application and add middleware to it, including our HTTP schema implementation.

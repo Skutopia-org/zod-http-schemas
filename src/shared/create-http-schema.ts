@@ -21,13 +21,18 @@ export function createHttpSchema<T extends HttpSchema>(schema: T) {
         methodPathCombos.add(methodPathCombo);
 
         // Ensure params parsed out of `path` exactly match the names in `route.params`.
-        let pathParams = pathToRegExp.parse(route.path).filter(p => typeof p !== 'string') as pathToRegExp.Key[];
-        let pathParamNames = pathParams.map(p => p.name);
-        let routeParamNames = route.paramNames || [];
-        let isParamsMismatch = pathParamNames.length !== routeParamNames.length;
-        isParamsMismatch = isParamsMismatch || !pathParamNames.every(n => routeParamNames.includes(n as any));
-        if (isParamsMismatch) {
-            throw new Error(`Param names don't match in path and params for route '${route.method} ${route.path}'`);
+        // NB: pathToRegExp doesn't handle '*' wildcards like express, so we replace those with (.*) in the path.
+        let path = route.path.replace(/\*/g, '(.*)');
+        let pathParams = pathToRegExp.parse(path).filter(p => typeof p !== 'string') as pathToRegExp.Key[];
+        let actualParamNames = pathParams.map(p => String(p.name));
+        let expectedParamNames = route.paramNames || [];
+        let missingParamNames = expectedParamNames.filter(p => !actualParamNames.includes(p));
+        let excessParamNames = actualParamNames.filter(p => !expectedParamNames.includes(p));
+        if (missingParamNames.length > 0 || excessParamNames.length > 0) {
+            let msg = `Param names don't match in path and params for route '${route.method} ${route.path}'.`;
+            if (missingParamNames.length > 0) msg += ` Excess in paramNames: "${missingParamNames.join('", "')}".`;
+            if (excessParamNames.length > 0) msg += ` Missing from paramNames: "${excessParamNames.join('", "')}".`;
+            throw new Error(msg);
         }
     }
     return schema;

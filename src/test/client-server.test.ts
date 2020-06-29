@@ -31,7 +31,11 @@ describe('Implementing a HTTP client and server', () => {
         expect(prod).equals(240_000);
 
         // GET *
-        let blah = await client.get('/blah' as '*', {body: 'hello blah'});
-        expect(blah).equals('hello blah');
+        let msg = await client.get('*', {params: {0: '/hello'}, body: {name: 'foo'}});
+        expect(msg).equals('Hello, foo!');
+
+        // GET * (invalid)
+        let getMsg = () => client.get('*', {params: {0: '/ciao'}, body: {name: 'bella'}});
+        await expect(getMsg()).to.eventually.be.rejected;
     });
 });
