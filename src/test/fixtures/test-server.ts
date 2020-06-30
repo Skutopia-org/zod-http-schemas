@@ -4,31 +4,34 @@ import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import * as useragent from 'express-useragent';
 import * as http from 'http';
-import {decorateExpressRouter, t} from '../../server';
+import {createRequestHandler, decorateExpressRouter, t} from '../../server';
 import {testSchema} from './test-schema';
 
 
 export function createTestServer() {
 
+    const RequestProps = t.object({
+        // `req.useragent` prop added by useragent middleware
+        useragent: t.object({
+            isMobile: t.boolean,
+            isDesktop: t.boolean,
+            browser: t.string,
+            os: t.string,
+            platform: t.string,
+            // ...and more
+        }),
+    });
+
     // Implement the HTTP schema using an Express Router instance.
     const typedRoutes = decorateExpressRouter({
         schema: testSchema,
-        requestProps: t.object({
-            // `req.useragent` prop added by useragent middleware
-            useragent: t.object({
-                isMobile: t.boolean,
-                isDesktop: t.boolean,
-                browser: t.string,
-                os: t.string,
-                platform: t.string,
-                // ...and more
-            }),
-        }),
+        requestProps: RequestProps,
         onValidationError: (_, res) => {
             res.status(200).send({success: false, code: 'MY_CUSTOM_VALIDATION_ERROR'});
         },
     });
-    
+
+    // Specify some route handlers inline
     typedRoutes.get('/random-numbers', [log], (req, res) => {
         req.useragent.isMobile;
         res.send([
@@ -43,12 +46,19 @@ export function createTestServer() {
         res.send(result);
     });
     
-    typedRoutes.post('/product', [log], (req, res) => {
-        let result = req.body.reduce((sum, n) => sum * n, 1);
-        res.status(200).send(result);
+    // Specify some route handlers separately and then add them to the app.
+    const handleProduct = createRequestHandler({
+        schema: testSchema,
+        method: 'POST',
+        path: '/product',
+        requestProps: RequestProps,
+        handler: (req, res) => {
+            req.useragent.isMobile;
+            let result = req.body.reduce((sum, n) => sum * n, 1);
+            res.status(200).send(result);
+        }
     });
-
-    typedRoutes.get('*', [log], (req, res) => {
+    const handleWildcard = createRequestHandler(testSchema, 'GET', '*', (req, res) => {
         if (req.params['0'] === '/hello') {
             res.status(200).send(`Hello, ${req.body.name}!`);
         }
@@ -56,6 +66,8 @@ export function createTestServer() {
             res.status(500).send('Server error');
         }
     });
+    typedRoutes.post('/product', [log], handleProduct);
+    typedRoutes.get('*', [log], handleWildcard);
 
     // Create an Express Application and add middleware to it, including our HTTP schema implementation.
     const app = express();

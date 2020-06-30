@@ -1,14 +1,14 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import * as express from 'express';
 import {IRouter, RequestHandler as ExpressRequestHandler, ErrorRequestHandler} from 'express';
-import {assert, removeExcessProperties, t, TypeInfo} from 'rtti';
+import {assert, removeExcessProperties, t, TypeFromTypeInfo, TypeInfo} from 'rtti';
 import {HttpSchema} from '../shared';
 import {Paths} from '../util';
 import {RequestHandler} from './create-request-handler';
 
 
 /** Options for decorateExpressRouter. */
-export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App extends IRouter, Req extends TypeInfo> {
+export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App extends IRouter, ReqProps extends TypeInfo> {
 
     /** Type schema describing the endpoints handled by the express server. */
     schema: Schema;
@@ -17,7 +17,7 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
     router?: App;
 
     /** TODO: doc... */
-    requestProps?: Req;
+    requestProps?: ReqProps;
 
     /**
      * Optional request handler to delegate to if a server-side validation error occurs. If this option is not
@@ -34,8 +34,8 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
 export function decorateExpressRouter<
     Schema extends HttpSchema,
     App extends IRouter,
-    Req extends TypeInfo = t.unknown
->(options: DecorateExpressRouterOptions<Schema, App, Req>) {
+    ReqProps extends TypeInfo = t.object
+>(options: DecorateExpressRouterOptions<Schema, App, ReqProps>) {
 
     // Return a new app/router with some overridden methods. The original app/router is left unchanged.
     let router = options.router ?? express.Router();
@@ -45,7 +45,7 @@ export function decorateExpressRouter<
         get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
         post: (path: string, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
     });
-    return result as unknown as DecoratedExpressRouter<Schema, App, Req>;
+    return result as unknown as DecoratedExpressRouter<Schema, App, TypeFromTypeInfo<ReqProps>>;
 
     // This function wraps express' normal get/post methods, adding runtime checks for schema conformance.
     function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
@@ -85,7 +85,7 @@ export function decorateExpressRouter<
 
 
 /** A strongly-typed express application/router. */
-export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req extends TypeInfo> =
+export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req> =
     & ExpressRequestHandler
     & Omit<R, 'get' | 'post'>
     & {
