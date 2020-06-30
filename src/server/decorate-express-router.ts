@@ -45,7 +45,7 @@ export function decorateExpressRouter<
         get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
         post: (path: string, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
     });
-    return result as unknown as DecoratedExpressRouter<Schema, App, TypeFromTypeInfo<ReqProps>>;
+    return result as unknown as DecoratedExpressRouter<Schema, App, ReqProps>;
 
     // This function wraps express' normal get/post methods, adding runtime checks for schema conformance.
     function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
@@ -85,17 +85,17 @@ export function decorateExpressRouter<
 
 
 /** A strongly-typed express application/router. */
-export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, Req> =
+export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, ReqProps extends TypeInfo> =
     & ExpressRequestHandler
     & Omit<R, 'get' | 'post'>
     & {
         get<P extends Paths<S, 'GET'>>(
             path: P,
-            ...handlers: Array<RequestHandler<S, 'GET', P, Req> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+            ...handlers: Array<RequestHandler<S, 'GET', P, TypeFromTypeInfo<ReqProps>> | Array<ExpressRequestHandler | ErrorRequestHandler>>
         ): void;
         post<P extends Paths<S, 'POST'>>(
             path: P,
-            ...handlers: Array<RequestHandler<S, 'POST', P, Req> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+            ...handlers: Array<RequestHandler<S, 'POST', P, TypeFromTypeInfo<ReqProps>> | Array<ExpressRequestHandler | ErrorRequestHandler>>
         ): void;
     };
 
