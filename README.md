@@ -9,42 +9,80 @@ Use `http-schemas` to describe the 'shape' of a HTTP API in a way that is enforc
 `npm install http-schemas`
 
 
-## Basic Client-Side Usage
+## Example Shared Code (use in both client and server)
 ```ts
-import {createHttpClient, createHttpRoute, createHttpSchema, t} from 'http-schemas/client';
+import {createHttpRoute, createHttpSchema, t} from 'http-schemas';
 
-const schema = createHttpSchema([
+// Declare the http schema to be used by both client and server
+export const apiSchema = createHttpSchema([
     createHttpRoute({
-        method: 'GET',
+        method: 'POST',
         path: '/sum',
         requestBody: t.array(t.number),
         responseBody: t.number,
     }),
+    createHttpRoute({
+        method: 'GET',
+        path: '/greet/:name',
+        paramNames: ['name'],
+        responseBody: t.string,
+    }),
 ]);
-
-const client = createHttpClient(schema);
-client.get('/sum', {body: [1, 2]}); // returns Promise<number>
 ```
 
 
-## Basic Server-Side Usage
+
+
+
+## Example Client-Side Code
+```ts
+import {createHttpClient} from 'http-schemas/client';
+import {apiSchema} from '<path-to-shared-schema>';
+
+// Create a strongly-typed http client. These are cheap to create - it's fine to have many of them.
+const client = createHttpClient(apiSchema, {baseURL: '/api'});
+
+// Some valid request examples
+let res1 = client.post('/sum', {body: [1, 2]});                 // res1: Promise<number>
+let res2 = client.get('/greet/:name', {params: {name: 'Bob'}}); // res2: Promise<string>
+
+// Some invalid request examples
+let res3 = client.get('/sum', {body: [1, 2]});                  // tsc build error & runtime error
+let res4 = client.post('/sum', {body: 'foo'});                  // tsc build error & runtime error
+let res5 = client.post('/blah');                                // tsc build error & runtime error
+```
+
+
+## Example Server-Side Code
 ```ts
 import * as express from 'express';
-import {createHttpRoute, createHttpSchema, decorateExpressRouter, t} from 'http-schemas/server';
+import {createRequestHandler, decorateExpressRouter} from 'http-schemas/server';
+import {apiSchema} from '<path-to-shared-schema>';
 
-const schema = createHttpSchema([
-    createHttpRoute({
-        method: 'GET',
-        path: '/sum',
-        requestBody: t.array(t.number),
-        responseBody: t.number,
-    }),
-]);
+// Create a strongly-typed express router.
+const apiRouter = decorateExpressRouter({schema: apiSchema});
 
-const app = decorateExpressRouter({schema, router: express()});
-app.get('/sum', (req, res) => {
+// Create a normal express app and mount the strongly-typed router.
+const app = express();
+app.use(express.json()); // it's a normal express app; mount whatever middleware you want
+app.use('/api', apiRouter); // `apiRouter` is just middleware; mount it wherever you want
+
+// Add a request handler directly to the router
+apiRouter.post('/sum', (req, res) => {
     let result = req.body.reduce((sum, n) => sum + n, 0);
     res.send(result);
 });
+
+// Declare a request handler separately, then add it to the router
+const greetHandler = createRequestHandler(apiSchema, 'GET', '/greet/:name', (req, res) => {
+    res.send(`Hello, ${req.params.name}!`);
+});
+apiRouter.get('/greet/:name', greetHandler);
+
+// Some invalid route handler examples
+apiRouter.post('/blah', (req, res) => {/*...*/});           // tsc build error & runtime error
+apiRouter.post('/sum', (req, res) => { req.body.foo[0] });  // tsc build error & runtime error
+apiRouter.post('/sum', (req, res) => { res.send('foo') });  // tsc build error & runtime error
+
 app.listen(8000);
 ```

@@ -75,7 +75,7 @@ export function createTestServer() {
     app.use(cookieParser());
     app.use(useragent.express());
     app.use(bodyParser.json());
-    app.use(typedRoutes);
+    app.use('/api', typedRoutes);
 
     // Return an object that allows the caller to start and stop the HTTP server.
     return {
