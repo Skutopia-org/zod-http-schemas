@@ -142,7 +142,7 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidation
             req.body = validateAndClean(req.body, routeInfo.requestBody ?? t.object({}));
         }
         catch (err) {
-            onValidationError!(req, res, next);
+            onValidationError!(err, req, res, next);
             return;
         }
 
