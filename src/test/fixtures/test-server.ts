@@ -26,7 +26,8 @@ export function createTestServer() {
     const typedRoutes = decorateExpressRouter({
         schema: testSchema,
         requestProps: RequestProps,
-        onValidationError: (_, res) => {
+        onValidationError: (err, _, res) => {
+            console.log(err);
             res.status(200).send({success: false, code: 'MY_CUSTOM_VALIDATION_ERROR'});
         },
     });
@@ -40,12 +41,12 @@ export function createTestServer() {
             Math.random(),
         ]);
     });
-    
+
     typedRoutes.post('/sum', [log], (req, res) => {
         let result = req.body.reduce((sum, n) => sum + n, 0);
         res.send(result);
     });
-    
+
     // Specify some route handlers separately and then add them to the app.
     const handleProduct = createRequestHandler({
         schema: testSchema,
