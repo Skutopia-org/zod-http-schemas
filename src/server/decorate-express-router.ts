@@ -23,7 +23,7 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
      * Optional request handler to delegate to if a server-side validation error occurs. If this option is not
      * specified, the default behaviour is to respond with a 400 status code.
      */
-    onValidationError?: ExpressRequestHandler;
+    onValidationError?: ErrorRequestHandler;
 }
 
 
@@ -110,8 +110,8 @@ function createRequestPropValidationMiddleware(requestProps: TypeInfo): ExpressR
 
 
 /** Creates a middleware function that validates request params/body and response body for the given `routeInfo`. */
-function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidationError?: ExpressRequestHandler): ExpressRequestHandler {
-    onValidationError = onValidationError ?? ((_, res) => {
+function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidationError?: ErrorRequestHandler): ExpressRequestHandler {
+    onValidationError = onValidationError ?? ((err, _, res) => {
         res.status(400).send('The request body did not conform to the required schema.');
     });
 
@@ -142,7 +142,7 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidation
             req.body = validateAndClean(req.body, routeInfo.requestBody ?? t.object({}));
         }
         catch (err) {
-            onValidationError!(req, res, next);
+            onValidationError!(err, req, res, next);
             return;
         }
 
