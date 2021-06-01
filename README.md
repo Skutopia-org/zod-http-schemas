@@ -86,3 +86,7 @@ apiRouter.post('/sum', (req, res) => { res.send('foo') });  // tsc build error &
 
 app.listen(8000);
 ```
+
+## Full production-like webserver demo
+
+The best way to see `http-schemas` in action is to see it in a real demonstration with documentation. Take a look at [http-schemas-webserver-demo](https://github.com/Antman261/http-schemas-webserver-demo), read the docs, run it and play with it yourself.
