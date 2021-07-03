@@ -5,7 +5,7 @@ import * as express from 'express';
 import * as useragent from 'express-useragent';
 import * as http from 'http';
 import {createRequestHandler, decorateExpressRouter, t} from '../../server';
-import {testSchema} from './test-schema';
+import {testGetOnlySchema, testSchema} from './test-schema';
 
 
 export function createTestServer() {
@@ -100,4 +100,42 @@ let server: http.Server;
 const log: express.RequestHandler = (req, _, next) => {
     console.log(`Incoming request: ${req.path}`);
     next();
+}
+
+export const createGetOnlyServer = () => {
+
+    // Implement the HTTP schema using an Express Router instance.
+    const typedRoutes = decorateExpressRouter({
+        schema: testGetOnlySchema,
+    });
+
+    // Specify some route handlers inline
+    typedRoutes.get('/random-numbers', [log], (req, res) => {
+        res.send([
+            Math.random(),
+            Math.random(),
+            Math.random(),
+        ]);
+    });
+
+    // Create an Express Application and add middleware to it, including our HTTP schema implementation.
+    const app = express();
+    app.use(compression());
+    app.use(cookieParser());
+    app.use('/api', typedRoutes);
+
+    // Return an object that allows the caller to start and stop the HTTP server.
+    let server: http.Server;
+    return {
+        start() {
+            return new Promise<void>(resolve => {
+                server = app.listen(8000, () => resolve());
+            });
+        },
+        stop() {
+            return new Promise<void>(resolve => {
+                server.close(() => resolve());
+            });
+        },
+    };
 }

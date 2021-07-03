@@ -138,8 +138,7 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidation
         // having an invalid request structure signifies a client error.
         try {
             // TODO: test that this actually replaces the req.body value
-            // TODO: doc that req.body will always be an empty object, and not undefined, if no body was sent
-            req.body = validateAndClean(req.body, routeInfo.requestBody ?? t.object({}));
+            req.body = validateAndClean(req.body, routeInfo.requestBody ?? t.union(t.object({}), t.undefined));
         }
         catch (err) {
             onValidationError!(err, req, res, next);
