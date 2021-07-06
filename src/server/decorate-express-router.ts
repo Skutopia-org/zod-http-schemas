@@ -112,7 +112,11 @@ function createRequestPropValidationMiddleware(requestProps: TypeInfo): ExpressR
 /** Creates a middleware function that validates request params/body and response body for the given `routeInfo`. */
 function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidationError?: ErrorRequestHandler): ExpressRequestHandler {
     onValidationError = onValidationError ?? ((err, _, res) => {
-        res.status(400).send('The request body did not conform to the required schema.');
+        res.status(400).json({
+            error: 'The request body did not conform to the required schema.',
+            message: err.message,
+        });
+        console.error(err);
     });
 
     return (req, res, next) => {
