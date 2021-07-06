@@ -27,3 +27,12 @@ export const testSchema = createHttpSchema([
         responseBody: t.unknown,
     }),
 ]);
+
+export const testGetOnlySchema = createHttpSchema([
+  // Used for testing get request without json body parser
+    createHttpRoute({
+        method: 'GET',
+        path: '/random-numbers',
+        responseBody: t.array(t.number),
+    }),
+])
