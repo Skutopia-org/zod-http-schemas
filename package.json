@@ -49,7 +49,7 @@
         "mocha": "^7.0.1",
         "npm": "^6.14.4",
         "ts-node": "^8.6.2",
-        "typescript": "^3.7.5"
+        "typescript": "next"
     },
     "dependencies": {
         "axios": "^0.21.1",
