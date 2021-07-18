@@ -51,7 +51,7 @@ export function decorateExpressRouter<
     function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
 
         // Get the route info from the schema for this method/path.
-        let matchingRoutes = options.schema.filter(r => r.method === method && r.path === path);
+        let matchingRoutes = Object.values(options.schema).filter(r => r.method === method && r.path === path);
         let routeInfo = matchingRoutes[0];
         if (matchingRoutes.length !== 1) {
             const problem = matchingRoutes.length > 1 ? 'multiple routes' : 'no route';
@@ -125,14 +125,14 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidation
         // If the params object is not as expected, it is likely a server-side configuration error, such as `path`
         // and `params` not matching properly in the HTTP schema. Since the error is likely server-side, pass the
         // error to `next`. This will skip subsequent middleware and trigger error middleware (if any).
-        let actualParamNames = Object.keys(req.params);
-        let expectedParamNames = routeInfo.paramNames || [];
-        let missingParamNames = expectedParamNames.filter(p => !actualParamNames.includes(p));
-        let excessParamNames = actualParamNames.filter(p => !expectedParamNames.includes(p));
-        if (missingParamNames.length > 0 || excessParamNames.length > 0) {
-            let msg = 'The request parameters did not conform to the required schema.';
-            if (missingParamNames.length > 0) msg += ` Missing: "${missingParamNames.join('", "')}".`;
-            if (excessParamNames.length > 0) msg += ` Excess: "${excessParamNames.join('", "')}".`;
+        let actualNamedParams = Object.keys(req.params);
+        let expectedNamedParams = routeInfo.namedParams || [];
+        let missingNamedParams = expectedNamedParams.filter(p => !actualNamedParams.includes(p));
+        let excessNamedParams = actualNamedParams.filter(p => !expectedNamedParams.includes(p));
+        if (missingNamedParams.length > 0 || excessNamedParams.length > 0) {
+            let msg = 'The named parameters in the request do not match the schema.';
+            if (missingNamedParams.length > 0) msg += ` Missing: "${missingNamedParams.join('", "')}".`;
+            if (excessNamedParams.length > 0) msg += ` Excess: "${excessNamedParams.join('", "')}".`;
             return next(new Error(msg));
         }
 

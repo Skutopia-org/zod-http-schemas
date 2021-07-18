@@ -1,7 +1,7 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
 import {assert, t, TypeFromTypeInfo, TypeInfo} from 'rtti';
-import {ParamNames, RequestBody, ResponseBody} from '../util';
+import {NamedParams, RequestBody, ResponseBody} from '../util';
 import {HttpSchema} from '../shared';
 
 
@@ -46,7 +46,7 @@ export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P ext
 
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
 type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req> =
-Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'>
+Omit<Request<Record<NamedParams<S, M, P>, string>>, 'body'>
 & Req
 & {
     body: RequestBody<S, M, P> extends undefined ? {} : RequestBody<S, M, P>;

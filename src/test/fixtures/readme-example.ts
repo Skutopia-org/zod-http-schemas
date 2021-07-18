@@ -1,23 +1,16 @@
 // ====================   SHARED   ====================
-import {createHttpRoute, createHttpSchema, t} from '../..';
+import {createHttpSchema, t} from '../..';
 
 // Declare the http schema to be used by both client and server
-const apiSchema = createHttpSchema([
-    createHttpRoute({
-        method: 'POST',
-        path: '/sum',
+const apiSchema = createHttpSchema({
+    'POST /sum': {
         requestBody: t.array(t.number),
         responseBody: t.number,
-    }),
-    createHttpRoute({
-        method: 'GET',
-        path: '/greet/:name',
-        paramNames: ['name'],
+    },
+    'GET /greet/:name': {
         responseBody: t.string,
-    }),
-]);
-
-
+    },
+});
 
 
 // ====================   CLIENT-SIDE   ====================
