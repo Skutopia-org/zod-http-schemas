@@ -1,7 +1,7 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import * as express from 'express';
 import {IRouter, RequestHandler as ExpressRequestHandler, ErrorRequestHandler} from 'express';
-import {assert, removeExcessProperties, t, TypeFromTypeInfo, TypeInfo} from 'rtti';
+import {t, TypeInfo} from 'rtti';
 import {HttpSchema} from '../shared';
 import {Paths} from '../util';
 import {RequestHandler} from './create-request-handler';
@@ -34,7 +34,7 @@ export interface DecorateExpressRouterOptions<Schema extends HttpSchema, App ext
 export function decorateExpressRouter<
     Schema extends HttpSchema,
     App extends IRouter,
-    ReqProps extends TypeInfo = t.object
+    ReqProps extends TypeInfo = TypeInfo<{}>,
 >(options: DecorateExpressRouterOptions<Schema, App, ReqProps>) {
 
     // Return a new app/router with some overridden methods. The original app/router is left unchanged.
@@ -91,11 +91,11 @@ export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, ReqP
     & {
         get<P extends Paths<S, 'GET'>>(
             path: P,
-            ...handlers: Array<RequestHandler<S, 'GET', P, TypeFromTypeInfo<ReqProps>> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+            ...handlers: Array<RequestHandler<S, 'GET', P, ReqProps['example']> | Array<ExpressRequestHandler | ErrorRequestHandler>>
         ): void;
         post<P extends Paths<S, 'POST'>>(
             path: P,
-            ...handlers: Array<RequestHandler<S, 'POST', P, TypeFromTypeInfo<ReqProps>> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+            ...handlers: Array<RequestHandler<S, 'POST', P, ReqProps['example']> | Array<ExpressRequestHandler | ErrorRequestHandler>>
         ): void;
     };
 
@@ -103,7 +103,7 @@ export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, ReqP
 /** Creates a middleware function that validates request properties against the given schema. */
 function createRequestPropValidationMiddleware(requestProps: TypeInfo): ExpressRequestHandler {
     return (req, _, next) => {
-        assert(requestProps, req);
+        requestProps.assertValid(req);
         next();
     };
 }
@@ -166,8 +166,8 @@ function createBodyValidationMiddleware(routeInfo: HttpSchema[any], onValidation
 
     // Helper function to runtime-validate that the body is the expected type, and to remove excess properties.
     function validateAndClean(value: unknown, type: TypeInfo = t.undefined) {
-        assert(type, value);
-        value = removeExcessProperties(type, value);
+        type.assertValid(value);
+        value = type.sanitize(value);
         return value;
     }
 }

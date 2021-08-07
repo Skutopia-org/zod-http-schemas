@@ -55,6 +55,6 @@
         "axios": "^0.21.1",
         "express": "^4.17.1",
         "path-to-regexp": "^4.0.2",
-        "rtti": "^0.3.3"
+        "rtti": "1.0.0-alpha.0"
     }
 }

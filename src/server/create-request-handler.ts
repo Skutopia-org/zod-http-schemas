@@ -1,6 +1,6 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
-import {assert, t, TypeFromTypeInfo, TypeInfo} from 'rtti';
+import {t, TypeInfo} from 'rtti';
 import {NamedParams, RequestBody, ResponseBody} from '../util';
 import {HttpSchema} from '../shared';
 
@@ -15,13 +15,13 @@ export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'PO
     path: P,
     handler: RequestHandler<S, M, P, {}>
 ): RequestHandler<S, M, P, {}>;
-export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], ReqProps extends TypeInfo = t.object>(
+export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], ReqProps extends TypeInfo = TypeInfo<{}>>(
     options: {
         schema: S,
         method: M,
         path: P,
         requestProps?: ReqProps
-        handler: RequestHandler<S, M, P, TypeFromTypeInfo<ReqProps>>
+        handler: RequestHandler<S, M, P, ReqProps['example']>
     }
 ): RequestHandler<S, M, P, {}>;
 export function createRequestHandler(optionsOrSchema: unknown, method?: unknown, path?: unknown, handler?: unknown): ExpressRequestHandler {
@@ -33,7 +33,7 @@ export function createRequestHandler(optionsOrSchema: unknown, method?: unknown,
 
     // Return a wrapped handler that validates the request props before invoking the given handler function.
     return (req, res, next) => {
-        assert(requestProps!, req);
+        requestProps?.assertValid(req);
         h(req, res, next);
     };
 }
