@@ -40,4 +40,4 @@ export function createHttpSchema<T extends HttpSchema>(schema: T) {
 
 
 /** A HTTP Schema, which is an array of `RouteInfo` items. */
-export type HttpSchema = RouteInfo<'GET' | 'POST', string, string>[];
+export type HttpSchema = RouteInfo<'GET' | 'POST' | 'PUT', string, string>[];

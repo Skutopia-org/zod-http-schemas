@@ -3,7 +3,7 @@ import {RouteInfo} from './route-info';
 
 /** Convenience function for defining a single route within a HTTP schema. */
 export function createHttpRoute<
-    M extends 'GET' | 'POST',
+    M extends 'GET' | 'POST' | 'PUT',
     P extends string,
     N extends string,
     T extends RouteInfo<M, P, N>

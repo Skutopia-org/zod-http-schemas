@@ -9,13 +9,13 @@ import {HttpSchema} from '../shared';
  * Accepts and returns a request handler function that is strongly-typed to match the given schema definition for the
  * given method and path. The function is returned as-is. This helper just provides convenient contextual typing.
  */
-export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>(
+export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path']>(
     schema: S,
     method: M,
     path: P,
     handler: RequestHandler<S, M, P, {}>
 ): RequestHandler<S, M, P, {}>;
-export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], ReqProps extends TypeInfo = t.object>(
+export function createRequestHandler<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path'], ReqProps extends TypeInfo = t.object>(
     options: {
         schema: S,
         method: M,
@@ -40,12 +40,12 @@ export function createRequestHandler(optionsOrSchema: unknown, method?: unknown,
 
 
 /** A strongly-typed express request handler. */
-export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req> =
+export type RequestHandler<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path'], Req> =
     (req: TypedRequest<S, M, P, Req>, res: TypedResponse<S, M, P>, next: NextFunction) => void | Promise<void>;
 
 
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
-type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'], Req> =
+type TypedRequest<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path'], Req> =
 Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'>
 & Req
 & {
@@ -55,7 +55,7 @@ Omit<Request<Record<ParamNames<S, M, P>, string>>, 'body'>
 
 
 /** A strongly-typed express response. Some original props are omited and replaced with typed ones. */
-type TypedResponse<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']> =
+type TypedResponse<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path']> =
 Omit<Response, 'end' | 'json' | 'jsonp' | 'send' | 'status'> & {
     end: never;
     json: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;

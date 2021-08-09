@@ -18,11 +18,12 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
     let result: HttpClient<S> = {
         get: (path, info?) => request('GET', path, info),
         post: (path, info?) => request('POST', path, info),
+        put: (path, info?) => request('PUT', path, info),
     };
     return result;
 
     // This function makes the actual HTTP requests through axios.
-    async function request(method: 'GET' | 'POST', path: string, info?: {params?: any, body?: any}) {
+    async function request(method: 'GET' | 'POST' | 'PUT', path: string, info?: {params?: any, body?: any}) {
 
         // Create the actual URL by substituting params (if any) into the path pattern.
         // NB: what axios calls `params` are really queryparams, so different from our `params`,
@@ -79,11 +80,17 @@ export type HttpClient<S extends HttpSchema> = {
             ? [RequestInfo<S, 'POST', P>?]  // make the `info` arg optional if this route has no params/body
             : [RequestInfo<S, 'POST', P>]   // make the `info` arg required if this route does have params/body
     ): Promise<ResponseBody<S, 'POST', P>>;
+    put<P extends Paths<S, 'PUT'>>(
+        path: P,
+        ...info: HasParamsOrBody<S, 'PUT', P> extends false
+            ? [RequestInfo<S, 'PUT', P>?]  // make the `info` arg optional if this route has no params/body
+            : [RequestInfo<S, 'PUT', P>]   // make the `info` arg required if this route does have params/body
+    ): Promise<ResponseBody<S, 'PUT', P>>;
 };
 
 
 /** Strongly-typed object used to provide details for a HTTP request to a specific route. */
-type RequestInfo<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path'] = string> =
+type RequestInfo<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path'] = string> =
     & (HasParams<S, M, P> extends true
         ? {params: Record<ParamNames<S, M, P>, string>} // make `params` requierd if this route does have params
         : {params?: Record<string, never>})             // make `params` optional if this route has no params
@@ -93,15 +100,15 @@ type RequestInfo<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any
 
 
 /** Helper type that resolves to `true` if the route for the given method/path has defined paramNames. */
-type HasParams<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
+type HasParams<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path']>
     = ParamNames<S, M, P> extends never ? false : true;
 
 
 /** Helper type that resolves to `true` if the route for the given method/path has defined requestBody. */
-type HasBody<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
+type HasBody<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path']>
     = RequestBody<S, M, P> extends undefined ? false : true;
 
 
 /** Helper type that resolves to `true` if the route for the given method/path has paramNames and/or requestBody. */
-type HasParamsOrBody<S extends HttpSchema, M extends 'GET' | 'POST', P extends S[any]['path']>
+type HasParamsOrBody<S extends HttpSchema, M extends 'GET' | 'POST' | 'PUT', P extends S[any]['path']>
     = HasParams<S, M, P> extends true ? true : HasBody<S, M, P>;
