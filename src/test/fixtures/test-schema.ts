@@ -26,6 +26,12 @@ export const testSchema = createHttpSchema([
         requestBody: t.object({name: t.string}),
         responseBody: t.unknown,
     }),
+    createHttpRoute({
+        method: 'PUT',
+        path: '/multiply',
+        requestBody: t.object({first: t.number, second: t.number}),
+        responseBody: t.number,
+    }),
 ]);
 
 export const testGetOnlySchema = createHttpSchema([
