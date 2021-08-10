@@ -44,11 +44,12 @@ export function decorateExpressRouter<
         ...options.router,
         get: (path: string, ...handlers: ExpressRequestHandler[]) => handle('GET', path, ...handlers),
         post: (path: string, ...handlers: ExpressRequestHandler[]) => handle('POST', path, ...handlers),
+        put: (path: string, ...handlers: ExpressRequestHandler[]) => handle('PUT', path, ...handlers),
     });
     return result as unknown as DecoratedExpressRouter<Schema, App, ReqProps>;
 
     // This function wraps express' normal get/post methods, adding runtime checks for schema conformance.
-    function handle(method: 'GET' | 'POST', path: string, ...handlers: ExpressRequestHandler[]) {
+    function handle(method: 'GET' | 'POST' | 'PUT', path: string, ...handlers: ExpressRequestHandler[]) {
 
         // Get the route info from the schema for this method/path.
         let matchingRoutes = options.schema.filter(r => r.method === method && r.path === path);
@@ -76,7 +77,7 @@ export function decorateExpressRouter<
 
         // Register the list of wrapped handlers for the given method/path with the underlying express app/router.
         // Also prepend middleware that ensures req/res objects are validated and have excess properties removed.
-        const m = method.toLowerCase() as 'get' | 'post';
+        const m = method.toLowerCase() as 'get' | 'post' | 'put';
         const validateRequestProps = createRequestPropValidationMiddleware(options.requestProps || t.unknown);
         const validateBodies = createBodyValidationMiddleware(routeInfo, options.onValidationError);
         router[m](path, validateRequestProps, validateBodies, ...errorPropagatingHandlers);
@@ -87,7 +88,7 @@ export function decorateExpressRouter<
 /** A strongly-typed express application/router. */
 export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, ReqProps extends TypeInfo> =
     & ExpressRequestHandler
-    & Omit<R, 'get' | 'post'>
+    & Omit<R, 'get' | 'post' | 'put'>
     & {
         get<P extends Paths<S, 'GET'>>(
             path: P,
@@ -96,6 +97,10 @@ export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, ReqP
         post<P extends Paths<S, 'POST'>>(
             path: P,
             ...handlers: Array<RequestHandler<S, 'POST', P, TypeFromTypeInfo<ReqProps>> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+        ): void;
+        put<P extends Paths<S, 'PUT'>>(
+            path: P,
+            ...handlers: Array<RequestHandler<S, 'PUT', P, TypeFromTypeInfo<ReqProps>> | Array<ExpressRequestHandler | ErrorRequestHandler>>
         ): void;
     };
 

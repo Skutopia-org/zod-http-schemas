@@ -67,7 +67,19 @@ export function createTestServer() {
             res.status(500).send('Server error');
         }
     });
+    const handleMultiply = createRequestHandler({
+        schema: testSchema,
+        method: 'PUT',
+        path: '/multiply',
+        requestProps: RequestProps,
+        handler: (req, res) => {
+            const {first, second} = req.body;
+            const result = first * second;
+            res.send(result);
+        }
+    });
     typedRoutes.post('/product', [log], handleProduct);
+    typedRoutes.put('/multiply', [log], handleMultiply);
     typedRoutes.get('*', [log], handleWildcard);
 
     // Create an Express Application and add middleware to it, including our HTTP schema implementation.
