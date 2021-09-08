@@ -18,10 +18,10 @@ export const apiSchema = createHttpSchema({
     'POST /sum': {
         requestBody: t.array(t.number),
         responseBody: t.number,
-    }),
+    },
     'GET /greet/:name': {
         responseBody: t.string,
-    }),
+    },
 });
 ```
 
