@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
-import {NamedParams, Paths, RequestBody, ResponseBody} from '../util';
+import {Anonymize, NamedParams, Paths, RequestBody, ResponseBody} from '../util';
 import {HttpSchema, Method} from '../shared';
 
 
@@ -79,14 +79,14 @@ export type HttpClient<S extends HttpSchema> = {
 
 
 /** Strongly-typed object used to provide details for a HTTP request to a specific route. */
-type RequestInfo<S extends HttpSchema, M extends Method, P extends S[keyof S]['path'] = string> =
+type RequestInfo<S extends HttpSchema, M extends Method, P extends S[keyof S]['path'] = string> = Anonymize<
     & (HasNamedParams<S, M, P> extends true
         ? {params: Record<NamedParams<S, M, P>, string>}    // make `params` required if this route does have named params
         : {params?: Record<string, never>})                 // make `params` optional if this route has no named params
     & (HasBody<S, M, P> extends true
         ? {body: RequestBody<S, M, P>}                      // make `body` required if this route does have a body
         : {body?: never})                                   // make `body` optional if this route has no body
-
+>;
 
 /** Helper type that resolves to `true` if the route for the given method/path has defined namedParams. */
 type HasNamedParams<S extends HttpSchema, M extends Method, P extends S[keyof S]['path']>

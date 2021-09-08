@@ -46,20 +46,21 @@ export type RequestHandler<S extends HttpSchema, M extends Method, P extends S[a
 
 /** A strongly-typed express request. Some original props are omited and replaced with typed ones. */
 type TypedRequest<S extends HttpSchema, M extends Method, P extends S[any]['path'], Req> =
-Omit<Request<Record<NamedParams<S, M, P>, string>>, 'body'>
-& Req
-& {
-    body: RequestBody<S, M, P> extends undefined ? {} : RequestBody<S, M, P>;
-    [Symbol.asyncIterator](): AsyncIterableIterator<any>; // must add this back; not preserved by mapped types above
-};
+    & Omit<Request<Record<NamedParams<S, M, P>, string>>, 'body'>
+    & Req
+    & {
+        body: RequestBody<S, M, P> extends undefined ? {} : RequestBody<S, M, P>;
+        [Symbol.asyncIterator](): AsyncIterableIterator<any>; // must add this back; not preserved by mapped types above
+    };
 
 
 /** A strongly-typed express response. Some original props are omited and replaced with typed ones. */
 type TypedResponse<S extends HttpSchema, M extends Method, P extends S[any]['path']> =
-Omit<Response, 'end' | 'json' | 'jsonp' | 'send' | 'status'> & {
-    end: never;
-    json: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
-    jsonp: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
-    send: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
-    status: (code: number) => TypedResponse<S, M, P>;
-};
+    & Omit<Response, 'end' | 'json' | 'jsonp' | 'send' | 'status'>
+    & {
+        end: never;
+        json: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
+        jsonp: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
+        send: (body: ResponseBody<S, M, P>) => TypedResponse<S, M, P>;
+        status: (code: number) => TypedResponse<S, M, P>;
+    };

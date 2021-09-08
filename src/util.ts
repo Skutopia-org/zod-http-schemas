@@ -28,3 +28,7 @@ export type ResponseBody<S extends HttpSchema, M extends Method, P extends S[key
 /** Helper mapped type that selects the (should be single) RouteInfo matching the given method/path. */
 export type FilterRoutes<S extends HttpSchema, M extends Method, P extends S[keyof S]['path']>
     = S[keyof S] extends infer U ? (U extends {method: M, path: P} ? U : never) : never;
+
+/** Helper type to simplify output type display. */
+export type Anonymize<Obj> = Anonymize2<{[K in keyof Obj]: Obj[K]}>;
+type Anonymize2<T> = T;
