@@ -19,6 +19,10 @@ export const testSchema = createHttpSchema({
         }),
         responseBody: t.unknown,
     },
+    'PUT /multiply': {
+        requestBody: t.object({first: t.number, second: t.number}),
+        responseBody: t.number,
+    },
 });
 
 // Used for testing get request without json body parser

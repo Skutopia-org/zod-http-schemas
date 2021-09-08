@@ -18,6 +18,7 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
     let result: HttpClient<S> = {
         get: (path, info?) => request('GET', path, info),
         post: (path, info?) => request('POST', path, info),
+        put: (path, info?) => request('PUT', path, info),
         // TODO: other methods...
     };
     return result;
@@ -68,25 +69,19 @@ export interface HttpClientOptions {
 
 /** Strongly typed object for making requests to a remote HTTP server that implements the schema `S`. */
 export type HttpClient<S extends HttpSchema> = {
-    get<P extends Paths<S, 'GET'>>(
+    [M in Method as Lowercase<M>]: <P extends Paths<S, M>>(
         path: P,
-        ...info: HasNamedParamsOrBody<S, 'GET', P> extends false
-            ? [RequestInfo<S, 'GET', P>?]   // make the `info` arg optional if this route has no params/body
-            : [RequestInfo<S, 'GET', P>]    // make the `info` arg required if this route does have params/body
-    ): Promise<ResponseBody<S, 'GET', P>>;
-    post<P extends Paths<S, 'POST'>>(
-        path: P,
-        ...info: HasNamedParamsOrBody<S, 'POST', P> extends false
-            ? [RequestInfo<S, 'POST', P>?]  // make the `info` arg optional if this route has no params/body
-            : [RequestInfo<S, 'POST', P>]   // make the `info` arg required if this route does have params/body
-    ): Promise<ResponseBody<S, 'POST', P>>;
+        ...info: HasNamedParamsOrBody<S, M, P> extends false
+            ? [RequestInfo<S, M, P>?]   // make the `info` arg optional if this route has no params/body
+            : [RequestInfo<S, M, P>]    // make the `info` arg required if this route does have params/body
+    ) => Promise<ResponseBody<S, M, P>>;
 };
 
 
 /** Strongly-typed object used to provide details for a HTTP request to a specific route. */
 type RequestInfo<S extends HttpSchema, M extends Method, P extends S[keyof S]['path'] = string> =
     & (HasNamedParams<S, M, P> extends true
-        ? {params: Record<NamedParams<S, M, P>, string>}    // make `params` requierd if this route does have named params
+        ? {params: Record<NamedParams<S, M, P>, string>}    // make `params` required if this route does have named params
         : {params?: Record<string, never>})                 // make `params` optional if this route has no named params
     & (HasBody<S, M, P> extends true
         ? {body: RequestBody<S, M, P>}                      // make `body` required if this route does have a body

@@ -34,6 +34,10 @@ describe('Implementing a HTTP client and server', () => {
         const getMsg = () => client.get('*', {params: {0: '/ciao'}, body: {name: 'bella'}});
         await expect(getMsg()).to.eventually.be.rejected;
     });
+    it('PUT /multiply', async () => {
+        const prod = await client.put('/multiply', {body: {first: 2, second:5}});
+        expect(prod).equals(10);
+    });
     it('Server-side validation error', async () => {
         const invalid = await client.post('/sum', {body: [1, '2', 3, 4] as number[]});
         expect(invalid).to.include({success: false, code: 'MY_CUSTOM_VALIDATION_ERROR'});

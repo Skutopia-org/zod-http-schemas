@@ -10,7 +10,16 @@ const apiSchema = createHttpSchema({
     'GET /greet/:name': {
         responseBody: t.string,
     },
+    'PUT /multiply': {
+        requestBody: t.object({
+            first: t.number,
+            second: t.number
+        }),
+        responseBody: t.number,
+    },
 });
+
+
 
 
 // ====================   CLIENT-SIDE   ====================
@@ -20,13 +29,15 @@ import {createHttpClient} from '../../client';
 const client = createHttpClient(apiSchema, {baseURL: '/api'});
 
 // Some valid request examples
-let res1 = client.post('/sum', {body: [1, 2]});                 // res1: Promise<number>
-let res2 = client.get('/greet/:name', {params: {name: 'Bob'}}); // res2: Promise<string>
+let res1 = client.post('/sum', {body: [1, 2]});                     // res1: Promise<number>
+let res2 = client.get('/greet/:name', {params: {name: 'Bob'}});     // res2: Promise<string>
+let res3 = client.put('/multiply', {body: {first: 2, second: 5}});  // res3: Promise<number>
 
 // Some invalid request examples
-//let res3 = client.get('/sum', {body: [1, 2]});                  // tsc build error & runtime error
-//let res4 = client.post('/sum', {body: 'foo'});                  // tsc build error & runtime error
-//let res5 = client.post('/blah');                                // tsc build error & runtime error
+//let res4 = client.get('/sum', {body: [1, 2]});                      // tsc build error & runtime error
+//let res5 = client.post('/sum', {body: 'foo'});                      // tsc build error & runtime error
+//let res6 = client.post('/blah');                                    // tsc build error & runtime error
+//let res7 = client.post('/multiply', {body: {first: 2, second: 5}}); // tsc build error & runtime error
 
 
 
@@ -54,6 +65,12 @@ const greetHandler = createRequestHandler(apiSchema, 'GET', '/greet/:name', (req
     res.send(`Hello, ${req.params.name}!`);
 });
 apiRouter.get('/greet/:name', greetHandler);
+
+apiRouter.put('/multiply', (req, res) => {
+    const {first, second} = req.body;
+    const result = first * second;
+    res.send(result);
+});
 
 // Some invalid route handler examples
 //apiRouter.post('/blah', (req, res) => {/*...*/});           // tsc build error & runtime error
