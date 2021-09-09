@@ -49,12 +49,12 @@
         "mocha": "^7.0.1",
         "npm": "^6.14.4",
         "ts-node": "^8.6.2",
-        "typescript": "next"
+        "typescript": "^4.4.2"
     },
     "dependencies": {
         "axios": "^0.21.1",
         "express": "^4.17.1",
         "path-to-regexp": "^4.0.2",
-        "rtti": "1.0.0-alpha.0"
+        "rtti": "^1.0.0"
     }
 }
