@@ -11,7 +11,7 @@ Use `http-schemas` to describe the 'shape' of a HTTP API in a way that is enforc
 
 ## Example Shared Code (use in both client and server)
 ```ts
-import {createHttpRoute, createHttpSchema, t} from 'http-schemas';
+import {createHttpSchema, t} from 'http-schemas';
 
 // Declare the http schema to be used by both client and server
 export const apiSchema = createHttpSchema({
