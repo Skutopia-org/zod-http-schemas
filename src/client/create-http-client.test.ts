@@ -10,7 +10,7 @@
 //     httpRoute({
 //         method: 'POST',
 //         path: '/do-thing',
-//         paramNames: ['a123', 'a456'],
+//         namedParams: ['a123', 'a456'],
 //         requestBody: t.object({
 //             foo: t.string,
 //             bar: t.unit(42),
@@ -19,13 +19,13 @@
 //     httpRoute({
 //         method: 'GET',
 //         path: '/do-thing',
-//         paramNames: ['ccc', 'ddd'],
+//         namedParams: ['ccc', 'ddd'],
 //         responseBody: t.unit(42),
 //     }),
 //     httpRoute({
 //         method: 'POST',
 //         path: '/other-thing',
-//         paramNames: [],
+//         namedParams: [],
 //         requestBody: t.array(t.number),
 //         responseBody: t.date,
 //     }),

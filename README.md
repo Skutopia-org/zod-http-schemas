@@ -14,20 +14,15 @@ Use `http-schemas` to describe the 'shape' of a HTTP API in a way that is enforc
 import {createHttpRoute, createHttpSchema, t} from 'http-schemas';
 
 // Declare the http schema to be used by both client and server
-export const apiSchema = createHttpSchema([
-    createHttpRoute({
-        method: 'POST',
-        path: '/sum',
+export const apiSchema = createHttpSchema({
+    'POST /sum': {
         requestBody: t.array(t.number),
         responseBody: t.number,
-    }),
-    createHttpRoute({
-        method: 'GET',
-        path: '/greet/:name',
-        paramNames: ['name'],
+    },
+    'GET /greet/:name': {
         responseBody: t.string,
-    }),
-]);
+    },
+});
 ```
 
 
