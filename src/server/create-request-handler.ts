@@ -1,7 +1,7 @@
 // NB: express imports will be elided in the built js code, since we are only importing types.
 import {NextFunction, Request, RequestHandler as ExpressRequestHandler, Response} from 'express';
 import {t, TypeInfo} from 'rtti';
-import {NamedParams, RequestBody, ResponseBody} from '../util';
+import {ExtractMethod, ExtractPath, NamedParams, RequestBody, ResponseBody} from '../util';
 import {HttpSchema, Method} from '../shared';
 
 
@@ -9,21 +9,19 @@ import {HttpSchema, Method} from '../shared';
  * Accepts and returns a request handler function that is strongly-typed to match the given schema definition for the
  * given method and path. The function is returned as-is. This helper just provides convenient contextual typing.
  */
-export function createRequestHandler<S extends HttpSchema, M extends Method, P extends S[any]['path']>(
+export function createRequestHandler<S extends HttpSchema, R extends keyof S>(
     schema: S,
-    method: M,
-    path: P,
-    handler: RequestHandler<S, M, P, {}>
-): RequestHandler<S, M, P, {}>;
-export function createRequestHandler<S extends HttpSchema, M extends Method, P extends S[any]['path'], ReqProps extends TypeInfo = TypeInfo<{}>>(
+    route: R,
+    handler: RequestHandler<S, ExtractMethod<R>, ExtractPath<R>, {}>
+): RequestHandler<S, ExtractMethod<R>, ExtractPath<R>, {}>;
+export function createRequestHandler<S extends HttpSchema, R extends keyof S, ReqProps extends TypeInfo = TypeInfo<{}>>(
     options: {
         schema: S,
-        method: M,
-        path: P,
+        route: R,
         requestProps?: ReqProps
-        handler: RequestHandler<S, M, P, ReqProps['example']>
+        handler: RequestHandler<S, ExtractMethod<R>, ExtractPath<R>, ReqProps['example']>
     }
-): RequestHandler<S, M, P, {}>;
+): RequestHandler<S, ExtractMethod<R>, ExtractPath<R>, {}>;
 export function createRequestHandler(optionsOrSchema: unknown, method?: unknown, path?: unknown, handler?: unknown): ExpressRequestHandler {
     let h = (handler ?? (optionsOrSchema as any).handler) as ExpressRequestHandler;
     let requestProps = handler ? undefined : (optionsOrSchema as any).requestProps as TypeInfo;

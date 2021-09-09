@@ -2,6 +2,11 @@ import {TypeInfo} from 'rtti';
 import {HttpSchema, Method} from './shared';
 
 
+// TODO: ...
+export type ExtractMethod<Route> = Route extends `${infer M} ${string}` ? M extends Method ? M : never : never;
+export type ExtractPath<Route> = Route extends `${string} ${infer Path}` ? Path : never;
+
+
 /** Extracts the union of string literal paths for the given schema and method. */
 export type Paths<S extends HttpSchema, M extends Method> = FilterRoutes<S, M, string>['path'];
 

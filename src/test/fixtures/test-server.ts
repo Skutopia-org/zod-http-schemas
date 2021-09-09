@@ -50,8 +50,7 @@ export function createTestServer() {
     // Specify some route handlers separately and then add them to the app.
     const handleProduct = createRequestHandler({
         schema: testSchema,
-        method: 'POST',
-        path: '/product',
+        route: 'POST /product',
         requestProps: RequestProps,
         handler: (req, res) => {
             req.useragent.isMobile;
@@ -59,7 +58,7 @@ export function createTestServer() {
             res.status(200).send(result);
         }
     });
-    const handleWildcard = createRequestHandler(testSchema, 'GET', '*', (req, res) => {
+    const handleWildcard = createRequestHandler(testSchema, 'GET *', (req, res) => {
         if (req.params['0'] === '/hello') {
             res.status(200).send(`Hello, ${req.body.name}!`);
         }
@@ -69,8 +68,7 @@ export function createTestServer() {
     });
     const handleMultiply = createRequestHandler({
         schema: testSchema,
-        method: 'PUT',
-        path: '/multiply',
+        route: 'PUT /multiply',
         requestProps: RequestProps,
         handler: (req, res) => {
             const {first, second} = req.body;

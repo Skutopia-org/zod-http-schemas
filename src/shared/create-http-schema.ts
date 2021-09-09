@@ -1,5 +1,6 @@
 import * as pathToRegExp from 'path-to-regexp';
 import {t, TypeInfo} from 'rtti';
+import {ExtractMethod, ExtractPath} from '../util';
 import {Method, methods} from './methods';
 import {RouteInfo} from './route-info';
 
@@ -58,10 +59,6 @@ type ExtractRouteInfo<Schema extends RouteSpecs, Route extends keyof Schema> = A
     requestBody: Schema[Route] extends {requestBody: infer T} ? T : never;
     responseBody: Schema[Route] extends {responseBody: infer T} ? T : never;
 }>;
-
-type ExtractMethod<Route> = Route extends `${infer M} ${string}` ? M extends Method ? M : never : never;
-
-type ExtractPath<Route> = Route extends `${string} ${infer Path}` ? Path : never;
 
 type ExtractNamedParams<Path, Parts = Tail<Split<Path, ':'>>> = ExtractUntilDelim<Parts[any]>;
 

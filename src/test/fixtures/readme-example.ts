@@ -61,7 +61,7 @@ apiRouter.post('/sum', (req, res) => {
 });
 
 // Declare a request handler separately, then add it to the router
-const greetHandler = createRequestHandler(apiSchema, 'GET', '/greet/:name', (req, res) => {
+const greetHandler = createRequestHandler(apiSchema, 'GET /greet/:name', (req, res) => {
     res.send(`Hello, ${req.params.name}!`);
 });
 apiRouter.get('/greet/:name', greetHandler);
