@@ -90,18 +90,10 @@ export type DecoratedExpressRouter<S extends HttpSchema, R extends IRouter, ReqP
     & ExpressRequestHandler
     & Omit<R, Lowercase<Method>>
     & {
-        get<P extends Paths<S, 'GET'>>(
+        [M in Method as Lowercase<M>]: <P extends Paths<S, M>>(
             path: P,
-            ...handlers: Array<RequestHandler<S, 'GET', P, ReqProps['example']> | Array<ExpressRequestHandler | ErrorRequestHandler>>
-        ): void;
-        post<P extends Paths<S, 'POST'>>(
-            path: P,
-            ...handlers: Array<RequestHandler<S, 'POST', P, ReqProps['example']> | Array<ExpressRequestHandler | ErrorRequestHandler>>
-        ): void;
-        put<P extends Paths<S, 'PUT'>>(
-            path: P,
-            ...handlers: Array<RequestHandler<S, 'PUT', P, ReqProps['example']> | Array<ExpressRequestHandler | ErrorRequestHandler>>
-        ): void;
+            ...handlers: Array<RequestHandler<S, M, P, ReqProps['example']> | Array<ExpressRequestHandler | ErrorRequestHandler>>
+        ) => void;
     };
 
 
