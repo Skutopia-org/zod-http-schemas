@@ -22,7 +22,7 @@ export function createRequestHandler<S extends HttpSchema, R extends keyof S, Re
         handler: RequestHandler<S, ExtractMethod<R>, ExtractPath<R>, ReqProps['example']>
     }
 ): RequestHandler<S, ExtractMethod<R>, ExtractPath<R>, {}>;
-export function createRequestHandler(optionsOrSchema: unknown, method?: unknown, path?: unknown, handler?: unknown): ExpressRequestHandler {
+export function createRequestHandler(optionsOrSchema: unknown, route?: unknown, handler?: unknown): ExpressRequestHandler {
     let h = (handler ?? (optionsOrSchema as any).handler) as ExpressRequestHandler;
     let requestProps = handler ? undefined : (optionsOrSchema as any).requestProps as TypeInfo;
 
