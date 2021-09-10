@@ -1,16 +1,9 @@
 {
     "name": "http-schemas",
-    "version": "0.12.1",
+    "version": "0.12.2",
     "description": "Strongly-typed HTTP schemas",
     "main": "./dist/index.js",
-    "types": "not-supported.d.ts",
-    "typesVersions": {
-        ">=4.2": {
-            "*": [
-                "./dist/index.d.ts"
-            ]
-        }
-    },
+    "types": "./dist/index.d.ts",
     "scripts": {
         "build": "tsc",
         "test": "mocha -r ts-node/register \"src/**/*.test.ts\"",
@@ -35,8 +28,7 @@
         "client.d.ts",
         "client.js",
         "server.d.ts",
-        "server.js",
-        "not-supported.d.ts"
+        "server.js"
     ],
     "devDependencies": {
         "@types/body-parser": "^1.19.0",
