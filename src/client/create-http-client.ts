@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {AxiosRequestConfig} from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
 import {Anonymize, NamedParams, Paths, RequestBody, ResponseBody} from '../util';
 import {HttpSchema, Method} from '../shared';
@@ -14,17 +14,15 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
         withCredentials: options?.withCredentials ?? false,
     });
 
-    // Return a stringly-typed HTTP client.
-    let result: HttpClient<S> = {
+    return {
         get: (path, info?) => request('GET', path, info),
         post: (path, info?) => request('POST', path, info),
         put: (path, info?) => request('PUT', path, info),
         // TODO: other methods...
     };
-    return result;
 
     // This function makes the actual HTTP requests through axios.
-    async function request(method: Method, path: string, info?: {params?: any, body?: any}) {
+    async function request(method: Method, path: string, info?: {params?: any, body?: any, queryParams?: AxiosRequestConfig['params']}) {
 
         // Create the actual URL by substituting params (if any) into the path pattern.
         // NB: what axios calls `params` are really queryparams, so different from our `params`,
@@ -47,24 +45,7 @@ export function createHttpClient<S extends HttpSchema>(schema: S, options?: Part
     }
 }
 
-
-/** Options for `createHttpClient`. */
-export interface HttpClientOptions {
-    /** Will be prepended request paths unless they are absolute. Default is blank. */
-    baseURL: string;
-
-    /**
-     * Specifies the number of milliseconds before the request times out.
-     * A value of zero indicates no timeout should be applied. Default is zero.
-     */
-    timeout: number;
-
-    /**
-     * Indicates whether or not cross-site Access-Control requests should
-     * be made using credentials. Default is false. See Axios docs.
-     */
-    withCredentials: boolean,
-}
+export type HttpClientOptions = AxiosRequestConfig;
 
 
 /** Strongly typed object for making requests to a remote HTTP server that implements the schema `S`. */
@@ -77,16 +58,15 @@ export type HttpClient<S extends HttpSchema> = {
     ) => Promise<ResponseBody<S, M, P>>;
 };
 
-
 /** Strongly-typed object used to provide details for a HTTP request to a specific route. */
 type RequestInfo<S extends HttpSchema, M extends Method, P extends S[keyof S]['path'] = string> = Anonymize<
     & (HasNamedParams<S, M, P> extends true
         ? {params: Record<NamedParams<S, M, P>, string>}    // make `params` required if this route does have named params
         : {params?: Record<string, never>})                 // make `params` optional if this route has no named params
     & (HasBody<S, M, P> extends true
-        ? {body: RequestBody<S, M, P>}                      // make `body` required if this route does have a body
-        : {body?: never})                                   // make `body` optional if this route has no body
->;
+        ? {body: RequestBody<S, M, P>}            // make `body` required if this route does have a body
+        : {body?: never})                            // make `body` optional if this route has no body
+    & {queryParams?: AxiosRequestConfig['params']}>;
 
 /** Helper type that resolves to `true` if the route for the given method/path has defined namedParams. */
 type HasNamedParams<S extends HttpSchema, M extends Method, P extends S[keyof S]['path']>
