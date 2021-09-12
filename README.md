@@ -1,4 +1,4 @@
-# zod-http-schemas
+# Zod Http Schemas[![npm monthly downloads](https://img.shields.io/npm/dm/zod-http-schemas.svg?style=flat-square)](https://www.npmjs.com/package/zod-http-schemas) [![current version](https://img.shields.io/npm/v/zod-http-schemas.svg?style=flat-square)](https://www.npmjs.com/package/zod-http-schemas) [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 `zod-http-schemas` brings together the best parts of [http-schemas](https://github.com/yortus/http-schemas) and [zod](https://github.com/colinhacks/zod) into one library that:
 
