@@ -1,10 +1,8 @@
 // TODO: make into mocha tests
 
-
 // import {t} from 'rtti';
 // import {createHttpClient} from './create-http-client';
 // import {httpRoute, httpSchema} from './http-schema';
-
 
 // const s1 = httpSchema([
 //     httpRoute({
@@ -36,7 +34,6 @@
 //         responseBody: t.boolean,
 //     }),
 // ]);
-
 
 // async function test() {
 //     const client = createHttpClient(s1, {

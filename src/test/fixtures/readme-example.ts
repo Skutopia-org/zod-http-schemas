@@ -1,37 +1,34 @@
 // ====================   SHARED   ====================
-import {createHttpSchema, t} from '../..';
+import { createHttpSchema, z } from '../..';
 
 // Declare the http schema to be used by both client and server
 const apiSchema = createHttpSchema({
-    'POST /sum': {
-        requestBody: t.array(t.number),
-        responseBody: t.number,
-    },
-    'GET /greet/:name': {
-        responseBody: t.string,
-    },
-    'PUT /multiply': {
-        requestBody: t.object({
-            first: t.number,
-            second: t.number
-        }),
-        responseBody: t.number,
-    },
+  'POST /sum': {
+    requestBody: z.array(z.number()),
+    responseBody: z.number(),
+  },
+  'GET /greet/:name': {
+    responseBody: z.string(),
+  },
+  'PUT /multiply': {
+    requestBody: z.object({
+      first: z.number(),
+      second: z.number(),
+    }),
+    responseBody: z.number(),
+  },
 });
 
-
-
-
 // ====================   CLIENT-SIDE   ====================
-import {createHttpClient} from '../../client';
+import { createHttpClient } from '../../client';
 
 // Create a strongly-typed http client. These are cheap to create - it's fine to have many of them.
-const client = createHttpClient(apiSchema, {baseURL: '/api'});
+const client = createHttpClient(apiSchema, { baseURL: '/api' });
 
 // Some valid request examples
-let res1 = client.post('/sum', {body: [1, 2]});                     // res1: Promise<number>
-let res2 = client.get('/greet/:name', {params: {name: 'Bob'}});     // res2: Promise<string>
-let res3 = client.put('/multiply', {body: {first: 2, second: 5}});  // res3: Promise<number>
+let res1 = client.post('/sum', { body: [1, 2] }); // res1: Promise<number>
+let res2 = client.get('/greet/:name', { params: { name: 'Bob' } }); // res2: Promise<string>
+let res3 = client.put('/multiply', { body: { first: 2, second: 5 } }); // res3: Promise<number>
 
 // Some invalid request examples
 //let res4 = client.get('/sum', {body: [1, 2]});                      // tsc build error & runtime error
@@ -39,15 +36,12 @@ let res3 = client.put('/multiply', {body: {first: 2, second: 5}});  // res3: Pro
 //let res6 = client.post('/blah');                                    // tsc build error & runtime error
 //let res7 = client.post('/multiply', {body: {first: 2, second: 5}}); // tsc build error & runtime error
 
-
-
-
 // ====================   SERVER-SIDE   ====================
 import * as express from 'express';
-import {createRequestHandler, decorateExpressRouter} from '../../server';
+import { createRequestHandler, decorateExpressRouter } from '../../server';
 
 // Create a strongly-typed express router.
-const apiRouter = decorateExpressRouter({schema: apiSchema});
+const apiRouter = decorateExpressRouter({ schema: apiSchema });
 
 // Create a normal express app and mount the strongly-typed router.
 const app = express();
@@ -56,20 +50,24 @@ app.use('/api', apiRouter); // `apiRouter` is just middleware; mount it wherever
 
 // Add a request handler directly to the router
 apiRouter.post('/sum', (req, res) => {
-    let result = req.body.reduce((sum, n) => sum + n, 0);
-    res.send(result);
+  let result = req.body.reduce((sum, n) => sum + n, 0);
+  res.send(result);
 });
 
 // Declare a request handler separately, then add it to the router
-const greetHandler = createRequestHandler(apiSchema, 'GET /greet/:name', (req, res) => {
+const greetHandler = createRequestHandler(
+  apiSchema,
+  'GET /greet/:name',
+  (req, res) => {
     res.send(`Hello, ${req.params.name}!`);
-});
+  }
+);
 apiRouter.get('/greet/:name', greetHandler);
 
 apiRouter.put('/multiply', (req, res) => {
-    const {first, second} = req.body;
-    const result = first * second;
-    res.send(result);
+  const { first, second } = req.body;
+  const result = first * second;
+  res.send(result);
 });
 
 // Some invalid route handler examples

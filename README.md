@@ -1,26 +1,42 @@
-# http-schemas
+# zod-http-schemas
 
-Use `http-schemas` to describe the 'shape' of a HTTP API in a way that is enforced both at build time and at runtime. In TypeScript source code, HTTP requests in the client code, and route handlers in the server code, will be statically checked against the schema, so usage errors are caught early. At runtime the schema is used to ensure that request and response payloads match the schema. Response payloads are also trimmed of any excess properties to prevent accidental information leaks. A schema may be shared by both client-side and server-side code, giving a single source of truth and ensuring the client and server always agree on their shared API.
+`zod-http-schemas` brings together the best parts of [http-schemas](https://github.com/yortus/http-schemas) and [zod](https://github.com/colinhacks/zod) into one library that:
 
-`http-schemas` uses the [`rtti`](https://github.com/yortus/rtti) library for specifying and enforcing schemas.
+* Declares the 'shape' of an HTTP API both at compile time and at runtime.
+* Supports transformations and refinements.
+
+At compile time it statically checks:
+
+* HTTP requests in the client code
+* Route handlers in the server code against the declared schema, ensuring usage errors are caught early.
+
+At runtime, `zod-http-schemas`:
+* validates that response and request payloads match the declared schema
+* Trims response payloads of any excess properties, preventing information leaks
+
+Use a shared schema for both client and server side code as a single source of truth, ensuring
+the client and server always agree on the API.
+
+`zod-http-schemas` uses the [`zod`](https://github.com/colinhacks/zod) library for specifying and enforcing schema types.
 
 ## Installation
 
-`npm install http-schemas`
+`npm install zod-http-schemas`
 
 
 ## Example Shared Code (use in both client and server)
 ```ts
-import {createHttpSchema, t} from 'http-schemas';
+import {createHttpSchema} from 'http-schemas';
+import * as z from 'zod';
 
 // Declare the http schema to be used by both client and server
 export const apiSchema = createHttpSchema({
     'POST /sum': {
-        requestBody: t.array(t.number),
-        responseBody: t.number,
+        requestBody: z.array(z.number()),
+        responseBody: z.number(),
     },
     'GET /greet/:name': {
-        responseBody: t.string,
+        responseBody: z.string(),
     },
 });
 ```
