@@ -44,6 +44,10 @@ export function createTestServer() {
     res.send(result);
   });
 
+  typedRoutes.get('/404', (req, res) => {
+    res.status(404).json({ error: 'Resource not found' });
+  });
+
   // Specify some route handlers separately and then add them to the app.
   const handleProduct = createRequestHandler({
     schema: testSchema,

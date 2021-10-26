@@ -26,7 +26,7 @@ the client and server always agree on the API.
 
 ## Example Shared Code (use in both client and server)
 ```ts
-import {createHttpSchema} from 'http-schemas';
+import {createHttpSchema} from 'zod-http-schemas';
 import * as z from 'zod';
 
 // Declare the http schema to be used by both client and server
@@ -41,13 +41,9 @@ export const apiSchema = createHttpSchema({
 });
 ```
 
-
-
-
-
 ## Example Client-Side Code
 ```ts
-import {createHttpClient} from 'http-schemas/client';
+import {createHttpClient} from 'zod-http-schemas/client';
 import {apiSchema} from '<path-to-shared-schema>';
 
 // Create a strongly-typed http client. These are cheap to create - it's fine to have many of them.
@@ -63,6 +59,47 @@ let res4 = client.post('/sum', {body: 'foo'});                  // tsc build err
 let res5 = client.post('/blah');                                // tsc build error & runtime error
 ```
 
+### Client-side implementation
+
+`zod-http-schemas` uses [Axios](https://github.com/axios/axios) under the hood. Use the same config options with `createHttpClient` as you would with Axios.
+
+_However_ `zod-http-schemas` uses its own default `validateStatus` option that will only reject status codes >= `500`. This lets you include common error responses in your schema, without losing typing.
+
+For example, for a post endpoint you might specify
+
+```typescript
+export const apiSchema = createHttpSchema({
+    'POST /article': {
+        requestBody: NewArticle,
+        responseBody: z.union([Article, MyGenericApiErrorType]),
+    },
+});
+```
+
+Now your clientside code might have a type-guard function that asserts:
+
+```typescript
+import {AxiosResponse} from "axios";
+
+export const isNotErrorResponse = <T, E>(
+    response: AxiosResponse<T> | AxiosResponse<MyGenericApiErrorType>
+): response is AxiosResponse<T> => {
+    return response.status < 400;
+};
+```
+
+and used as such:
+
+```typescript
+const result = await apiClient.post('/article', {body: {title: 'Hello world'}});
+if (isNotErrorResponse(result)) {
+    // result is AxiosResponse<Article> in here
+    console.log(result.body);
+} else {
+    // Some error occured, so result is typed AxiosResponse<MyGenericApiErrorType>
+    console.error(result.body.myGenericErrorProperty)
+}
+```
 
 ## Example Server-Side Code
 ```ts

@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig } from 'axios';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
 import {
   Anonymize,
@@ -15,11 +15,9 @@ export function createHttpClient<S extends HttpSchema>(
   schema: S,
   options?: Partial<HttpClientOptions>
 ): HttpClient<S> {
-  // Create an axios client for making actual HTTP requests. Initialise it with the relevent given options, if any.
   const axiosClient = axios.create({
-    baseURL: options?.baseURL,
-    timeout: options?.timeout ?? 0,
-    withCredentials: options?.withCredentials ?? false,
+    ...options,
+    validateStatus: options?.validateStatus ?? ((status) => status < 500),
   });
 
   return {
@@ -29,7 +27,6 @@ export function createHttpClient<S extends HttpSchema>(
     // TODO: other methods...
   };
 
-  // This function makes the actual HTTP requests through axios.
   async function request(
     method: Method,
     path: string,
@@ -44,23 +41,11 @@ export function createHttpClient<S extends HttpSchema>(
     // which are part of the path that is pattern-matched by express on the server.
     // NB2: pathToRegExp doesn't handle '*' wildcards like express, so we substitute those manually below.
     let i = 0;
-    let url = pathToRegExp
+    const url = pathToRegExp
       .compile(path)(info?.params)
       .replace(/\*/g, () => info?.params[i++]);
 
-    // Make the HTTP request through axios. We don't validate outgoing/incoming
-    // bodies, since this is running on an untrusted client anyway.
-    let res = await axiosClient({ method, url, data: info?.body });
-
-    // If the server returned a 4xx or 5xx error, throw it.
-    if (res.status >= 400) {
-      throw new Error(
-        `There was an error communicating with the server: ${res.status} ${res.statusText}`
-      );
-    }
-
-    // Return the body received from the server.
-    return res.data;
+    return axiosClient({ method, url, data: info?.body });
   }
 }
 
@@ -73,7 +58,7 @@ export type HttpClient<S extends HttpSchema> = {
     ...info: HasNamedParamsOrBody<S, M, P> extends false
       ? [RequestInfo<S, M, P>?] // make the `info` arg optional if this route has no params/body
       : [RequestInfo<S, M, P>] // make the `info` arg required if this route does have params/body
-  ) => Promise<ResponseBody<S, M, P>>;
+  ) => Promise<AxiosResponse<ResponseBody<S, M, P>>>;
 };
 
 /** Strongly-typed object used to provide details for a HTTP request to a specific route. */
