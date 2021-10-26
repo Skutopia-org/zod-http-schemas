@@ -20,6 +20,9 @@ export const testSchema = createHttpSchema({
     }),
     responseBody: z.unknown(),
   },
+  'GET /404': {
+    responseBody: z.object({ error: z.string() }),
+  },
   'PUT /multiply': {
     requestBody: z.object({ first: z.number(), second: z.number() }),
     responseBody: z.number(),
