@@ -1,6 +1,13 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
-import { Anonymize, NamedParams, Paths, RequestBody, RequestBodyInput, ResponseBody } from '../util';
+import {
+  Anonymize,
+  NamedParams,
+  Paths,
+  RequestBody,
+  RequestBodyInput,
+  ResponseBody,
+} from '../util';
 import { HttpSchema, Method } from '../shared';
 
 /** Returns a strongly typed object for making requests to a remote HTTP server that implements the given `schema`. */
