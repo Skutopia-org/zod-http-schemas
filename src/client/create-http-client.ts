@@ -1,13 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
-import {
-  Anonymize,
-  NamedParams,
-  Paths,
-  RequestBody,
-  RequestBodyInput,
-  ResponseBody,
-} from '../util';
+import { Anonymize, NamedParams, Paths, RequestBody, RequestBodyInput, ResponseBody } from '../util';
 import { HttpSchema, Method } from '../shared';
 
 /** Returns a strongly typed object for making requests to a remote HTTP server that implements the given `schema`. */
@@ -24,7 +17,8 @@ export function createHttpClient<S extends HttpSchema>(
     get: (path, info?) => request('GET', path, info),
     post: (path, info?) => request('POST', path, info),
     put: (path, info?) => request('PUT', path, info),
-    // TODO: other methods...
+    patch: (path, info?) => request('PATCH', path, info),
+    delete: (path, info?) => request('DELETE', path, info),
   };
 
   async function request(
@@ -45,7 +39,13 @@ export function createHttpClient<S extends HttpSchema>(
       .compile(path)(info?.params)
       .replace(/\*/g, () => info?.params[i++]);
 
-    return axiosClient({ method, url, data: info?.body });
+    const responseBodySchema = schema[`${method} ${path}`].responseBody;
+
+    return axiosClient({ method, url, data: info?.body }).then((response) => {
+      response.data = responseBodySchema.parse(response.data);
+
+      return response;
+    });
   }
 }
 
