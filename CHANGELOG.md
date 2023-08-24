@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.0.1](https://github.com/antman261/zod-http-schemas/compare/v2.0.0...v2.0.1) (2023-08-24)
+
+
+### Features
+
+* Adds PATCH & DELETE and Improve client types ([#6](https://github.com/antman261/zod-http-schemas/issues/6)) ([70add2b](https://github.com/antman261/zod-http-schemas/commit/70add2ba1fea00c429ae2fe89b905d1659edef10))
+
 ## [2.0.0](https://github.com/antman261/zod-http-schemas/compare/v1.0.2...v2.0.0) (2021-10-26)
 
 
