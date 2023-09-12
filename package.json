@@ -1,6 +1,6 @@
 {
     "name": "zod-http-schemas",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "Zod Powered, strongly-typed HTTP schemas",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
@@ -76,11 +76,14 @@
         "axios": "^0.21.1",
         "express": "^4.17.1",
         "path-to-regexp": "^4.0.2",
-        "zod": "^3.8.2"
+        "zod": "^3.21.4"
     },
     "config": {
         "commitizen": {
             "path": "./node_modules/cz-conventional-changelog"
         }
+    },
+    "peerDependencies": {
+        "zod": "^3.21.4"
     }
 }
