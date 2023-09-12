@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.0](https://github.com/Skutopia-org/zod-http-schemas/compare/v2.0.3...v2.1.0) (2023-09-12)
+Bump `zod` package version to `3.21.4` as `peerDependencies` with major release version because of breaking changes in new Zod version.
+
 ### [2.0.3](https://github.com/Skutopia-org/zod-http-schemas/compare/v2.0.2...v2.0.3) (2023-09-12)
 Bump back `zod` package version to old version.
 
