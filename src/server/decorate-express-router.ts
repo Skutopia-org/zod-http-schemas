@@ -10,7 +10,6 @@ import { Paths } from '../util';
 import { RequestHandler } from './create-request-handler';
 import { ZodType, ZodTypeAny } from 'zod';
 import * as z from 'zod';
-import { ZodRawShape, ZodTypeDef } from 'zod/lib/types';
 
 /** Options for decorateExpressRouter. */
 export interface DecorateExpressRouterOptions<

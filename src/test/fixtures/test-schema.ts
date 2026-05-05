@@ -1,6 +1,4 @@
 import { createHttpSchema, z } from '../../shared';
-import { errorUtil } from 'zod/lib/helpers/errorUtil';
-import toString = errorUtil.toString;
 
 const customValidationErrorResponse = z.object({
   success: z.literal(false),
@@ -13,7 +11,7 @@ export const testSchema = createHttpSchema({
   },
   'POST /sum': {
     requestBody: z.array(z.number()),
-    responseBody:  z.number().or(customValidationErrorResponse),
+    responseBody: z.number().or(customValidationErrorResponse),
   },
   'POST /product': {
     requestBody: z.array(z.number()),
@@ -53,9 +51,7 @@ export const testSchema = createHttpSchema({
   },
   'POST /sum/with-query-param': {
     requestBody: z.array(z.number().int()),
-    responseBody: z
-      .number()
-      .int(),
+    responseBody: z.number().int(),
   },
 });
 
