@@ -1,25 +1,23 @@
 {
-    "editor.rulers": [
-        120
-    ],
+  "editor.rulers": [120],
 
-    "files.exclude": {
-        "**/dist": true,
-        "**/node_modules": true,
-        "**/tsconfig.tsbuildinfo": true,
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true
-    },
+  "files.exclude": {
+    "**/dist": true,
+    "**/node_modules": true,
+    "**/tsconfig.tsbuildinfo": true,
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true
+  },
 
-    "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsdk": "node_modules/typescript/lib",
 
-    "mochaExplorer.files": "src/**/*.test.ts",
-    "mochaExplorer.require": "ts-node/register",
-    "mochaExplorer.logpanel": true,
-    "mochaExplorer.env": {},
-    "mochaExplorer.debuggerConfig": "_Mocha Explorer"
-
+  "mochaExplorer.files": "src/**/*.test.ts",
+  "mochaExplorer.require": "ts-node/register",
+  "mochaExplorer.logpanel": true,
+  "mochaExplorer.env": {},
+  "mochaExplorer.debuggerConfig": "_Mocha Explorer",
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }
