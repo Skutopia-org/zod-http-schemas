@@ -1,18 +1,17 @@
 {
-    "compilerOptions": {
-        "target": "es2018",
-        "lib": ["es2018"],
-        "module": "commonjs",
-        "types": ["mocha"],
-        "declaration": true,
-        "sourceMap": true,
-        "rootDir": "src",
-        "outDir": "dist",
-        "strict": true,
-        "noUnusedLocals": false,
-        "noUnusedParameters": false,
-    },
-    "include": [
-        "src/"
-    ]
+  "compilerOptions": {
+    "target": "es2018",
+    "lib": ["es2018"],
+    "module": "commonjs",
+    "types": ["mocha"],
+    "skipLibCheck": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["src/"]
 }
