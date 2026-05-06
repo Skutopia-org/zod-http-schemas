@@ -5,23 +5,36 @@ on:
     branches:
       - main<<<<<<< papercut-deploy-to-private-repo
   workflow_dispatch:
-  
+    inputs:
+      commit:
+        description: 'Commit SHA to publish (defaults to last chore(release) commit on the selected branch)'
+        required: false
+        type: string
+
+
 jobs:
   publish:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.event.head_commit.message, 'chore(release)')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Check out last chore(release) commit
+      - name: Check out target commit
         if: github.event_name == 'workflow_dispatch'
         run: |
-          COMMIT=$(git log --grep='^chore(release)' -n 1 --format='%H')
-          if [ -z "$COMMIT" ]; then
-            echo "No chore(release) commit found on this branch"
-            exit 1
+          if [ -n "${{ inputs.commit }}" ]; then
+            COMMIT="${{ inputs.commit }}"
+            echo "Using input commit $COMMIT"
+          else
+            COMMIT=$(git log --all --grep='^chore(release)' -n 1 --format='%H')
+            if [ -z "$COMMIT" ]; then
+              echo "No chore(release) commit found in repo history"
+              exit 1
+            fi
+            echo "Found last chore(release) commit $COMMIT"
           fi
-          echo "Checking out $COMMIT"
           git checkout "$COMMIT"
 
       - uses: actions/setup-node@v4
