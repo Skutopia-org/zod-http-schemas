@@ -49,7 +49,7 @@ jobs:
       
       - name: Configure npm auth for Artifact Registry
         run: |
-          echo "@skutopia:registry=https://asia-npm.pkg.dev/skutopia/skutopia/" >> ~/.npmrc
+          echo "@skutopia:registry=https://asia-npm.pkg.dev/skutopia/skutopia/" >> ./.npmrc
 
       - name: Authenticate with private package registry
         run: npx --yes google-artifactregistry-auth --repo-config=./.npmrc
