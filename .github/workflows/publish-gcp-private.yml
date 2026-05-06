@@ -3,9 +3,9 @@ name: Publish to GCP Artifact Registry (private)
 on:
   push:
     branches:
-      - main
+      - main<<<<<<< papercut-deploy-to-private-repo
   workflow_dispatch:
-
+  
 jobs:
   publish:
     if: startsWith(github.event.head_commit.message, 'chore(release)')
