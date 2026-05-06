@@ -1,0 +1,51 @@
+name: Publish to GCP Artifact Registry (private)
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    if: startsWith(github.event.head_commit.message, 'chore(release)')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out last chore(release) commit
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          COMMIT=$(git log --grep='^chore(release)' -n 1 --format='%H')
+          if [ -z "$COMMIT" ]; then
+            echo "No chore(release) commit found on this branch"
+            exit 1
+          fi
+          echo "Checking out $COMMIT"
+          git checkout "$COMMIT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{ secrets.NPM_GCLOUD_SERVICE_KEY }}'
+      
+      - name: Configure npm auth for Artifact Registry
+        run: |
+          echo "@skutopia:registry=https://asia-npm.pkg.dev/skutopia/skutopia/" >> ~/.npmrc
+
+      - name: Authenticate with private package registry
+        run: npx --yes google-artifactregistry-auth --repo-config=./.npmrc
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - run: npm publish
