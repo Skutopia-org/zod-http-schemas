@@ -1,4 +1,4 @@
-import { ZodSchema, ZodTypeAny } from 'zod/v3';
+import { ZodTypeAny } from 'zod/v3';
 import { Method } from './methods';
 
 /** Runtime type information about a single HTTP route. */

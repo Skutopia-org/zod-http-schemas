@@ -5,8 +5,9 @@ import * as express from 'express';
 import * as useragent from 'express-useragent';
 import * as http from 'http';
 import * as morgan from 'morgan';
-import { createRequestHandler, decorateExpressRouter, z } from '../../server';
+import { createRequestHandler, decorateExpressRouter } from '../../server';
 import { testGetOnlySchema, testSchema } from './test-schema';
+import { z } from 'zod/v3';
 
 export function createTestServer() {
   const RequestProps = z.object({
@@ -117,7 +118,9 @@ export function createTestServer() {
   });
   typedRoutes.post('/sum/with-query-param', async (req, res) => {
     const numbers = req.body;
-    const result = numbers.reduce((acc, val) => acc + val, 0) + parseInt(req.query.alsoAdd as string);
+    const result =
+      numbers.reduce((acc, val) => acc + val, 0) +
+      parseInt(req.query.alsoAdd as string);
     res.send(result);
   });
 
