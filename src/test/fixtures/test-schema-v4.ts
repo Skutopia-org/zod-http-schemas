@@ -6,7 +6,7 @@ const customValidationErrorResponse = z4.object({
   code: z4.literal('MY_CUSTOM_VALIDATION_ERROR'),
 });
 
-export const testSchema = createHttpSchema({
+export const testSchemaV4 = createHttpSchema({
   'GET /random-numbers': {
     responseBody: z4.array(z4.number()),
   },
