@@ -42,7 +42,6 @@ export function createTestServer() {
 
   () => {
     typedRoutes.get('/random-numbers', (req, res) => {
-      req.useragent.isMobile;
       // @ts-expect-error - this should be a type error.
       res.send(['foo', Math.random(), Math.random()]);
     });
