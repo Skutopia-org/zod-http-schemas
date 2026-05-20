@@ -112,13 +112,13 @@ describe('Implementing a HTTP client and server', () => {
   it('creates a type safe client', async () => {
     async () => {
       await client.post('/sum/with-query-param', {
-        // @ts-expect-error - should product a type error
+        // @ts-expect-error - should produce a type error
         body: ['a', 2, 3],
         queryParams: {
           alsoAdd: 4,
         },
       });
-      // @ts-expect-error - should product a type error
+      // @ts-expect-error - should produce a type error
       await client.post('/not-a-route', {
         body: ['a', 2, 3],
         queryParams: {

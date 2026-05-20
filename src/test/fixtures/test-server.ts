@@ -9,11 +9,11 @@ import { createRequestHandler, decorateExpressRouter } from '../../server';
 import { z } from 'zod/v3';
 
 // Comment out the following imports to test with a zod v4 schema:
-import { testGetOnlySchema, testSchema } from './test-schema';
-// import {
-//   testGetOnlySchemaV4 as testGetOnlySchema,
-//   testSchemaV4 as testSchema,
-// } from './test-schema-v4';
+// import { testGetOnlySchema, testSchema } from './test-schema';
+import {
+  testGetOnlySchemaV4 as testGetOnlySchema,
+  testSchemaV4 as testSchema,
+} from './test-schema-v4';
 
 export function createTestServer() {
   const RequestProps = z.object({
