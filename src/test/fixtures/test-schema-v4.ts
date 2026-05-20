@@ -61,7 +61,7 @@ export const testSchemaV4 = createHttpSchema({
 });
 
 // Used for testing get request without json body parser
-export const testGetOnlySchema = createHttpSchema({
+export const testGetOnlySchemaV4 = createHttpSchema({
   'GET /random-numbers': {
     responseBody: z4.array(z4.number()),
   },

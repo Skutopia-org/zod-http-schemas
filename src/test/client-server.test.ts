@@ -2,6 +2,7 @@ import * as chai from 'chai';
 import * as chaiAsPromised from 'chai-as-promised';
 import { createTestClient } from './fixtures/test-client';
 import { createGetOnlyServer, createTestServer } from './fixtures/test-server';
+import { describe, it, before, after } from 'mocha';
 
 chai.use(chaiAsPromised);
 const { expect } = chai;
@@ -79,24 +80,32 @@ describe('Implementing a HTTP client and server', () => {
     await expect(res).eq(6);
   });
   it('Type transformations work as expected for response bodies', async () => {
-    await expect(client.post('/sum/transform-response', {
-      body: [1, 2, 3]
-    })).to.be.rejectedWith(JSON.stringify([
-      {
-        code: 'invalid_type',
-        expected: 'number',
-        received: 'string',
-        path: [],
-        message: 'Expected number, received string'
-      }
-    ], null, 2));
+    await expect(
+      client.post('/sum/transform-response', {
+        body: [1, 2, 3],
+      })
+    ).to.be.rejectedWith(
+      JSON.stringify(
+        [
+          {
+            code: 'invalid_type',
+            expected: 'number',
+            received: 'string',
+            path: [],
+            message: 'Expected number, received string',
+          },
+        ],
+        null,
+        2
+      )
+    );
   });
   it('Passes query params on to the server', async () => {
     const { data: res } = await client.post('/sum/with-query-param', {
       body: [1, 2, 3],
       queryParams: {
-        alsoAdd: 4
-      }
+        alsoAdd: 4,
+      },
     });
     await expect(res).eq(10);
   });

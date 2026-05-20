@@ -9,6 +9,12 @@ import { createRequestHandler, decorateExpressRouter } from '../../server';
 import { testGetOnlySchema, testSchema } from './test-schema';
 import { z } from 'zod/v3';
 
+// Comment out the following imports to test with a zod v4 schema:
+// import {
+//   testGetOnlySchemaV4 as testGetOnlySchema,
+//   testSchemaV4 as testSchema,
+// } from './test-schema-v4';
+
 export function createTestServer() {
   const RequestProps = z.object({
     // `req.useragent` prop added by useragent middleware
@@ -33,6 +39,14 @@ export function createTestServer() {
         .send({ success: false, code: 'MY_CUSTOM_VALIDATION_ERROR' });
     },
   });
+
+  () => {
+    typedRoutes.get('/random-numbers', (req, res) => {
+      req.useragent.isMobile;
+      // @ts-expect-error - this should be a type error.
+      res.send(['foo', Math.random(), Math.random()]);
+    });
+  };
 
   // Specify some route handlers inline
   typedRoutes.get('/random-numbers', (req, res) => {
