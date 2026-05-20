@@ -1,64 +1,68 @@
 import { createHttpSchema } from '../../shared';
-import { z } from 'zod/v3';
+import { z as z4 } from 'zod/v4';
 
-const customValidationErrorResponse = z.object({
-  success: z.literal(false),
-  code: z.literal('MY_CUSTOM_VALIDATION_ERROR'),
+const customValidationErrorResponse = z4.object({
+  success: z4.literal(false),
+  code: z4.literal('MY_CUSTOM_VALIDATION_ERROR'),
 });
 
 export const testSchema = createHttpSchema({
   'GET /random-numbers': {
-    responseBody: z.array(z.number()),
+    responseBody: z4.array(z4.number()),
   },
   'POST /sum': {
-    requestBody: z.array(z.number()),
-    responseBody: z.number().or(customValidationErrorResponse),
+    requestBody: z4.array(z4.number()),
+    responseBody: z4.number().or(customValidationErrorResponse),
   },
   'POST /product': {
-    requestBody: z.array(z.number()),
-    responseBody: z.number(),
+    requestBody: z4.array(z4.number()),
+    responseBody: z4.number(),
   },
   'GET *': {
-    requestBody: z.object({
-      name: z.string(),
+    requestBody: z4.object({
+      name: z4.string(),
     }),
-    responseBody: z.unknown(),
+    responseBody: z4.unknown(),
   },
   'GET /404': {
-    responseBody: z.object({ error: z.string() }),
+    responseBody: z4.object({ error: z4.string() }),
   },
   'PUT /multiply': {
-    requestBody: z.object({ first: z.number(), second: z.number() }),
-    responseBody: z.number(),
+    requestBody: z4.object({ first: z4.number(), second: z4.number() }),
+    responseBody: z4.number(),
   },
   'POST /sum/negative': {
-    requestBody: z.array(z.number().int().negative()),
-    responseBody: z.number().negative().int().or(customValidationErrorResponse),
+    requestBody: z4.array(z4.number().int().negative()),
+    responseBody: z4
+      .number()
+      .negative()
+      .int()
+      .or(customValidationErrorResponse),
   },
   'POST /sum/negative-broken': {
-    requestBody: z.array(z.number().int().negative()),
-    responseBody: z.number().negative().int(),
+    requestBody: z4.array(z4.number().int().negative()),
+    responseBody: z4.number().negative().int(),
   },
   'POST /sum/transform-string': {
-    requestBody: z.array(z.string().transform((s) => parseInt(s, 10))),
-    responseBody: z.number().int(),
+    requestBody: z4.array(z4.string().transform((s) => parseInt(s, 10))),
+    responseBody: z4.number().int(),
   },
   'POST /sum/transform-response': {
-    requestBody: z.array(z.number().int()),
-    responseBody: z
+    requestBody: z4.array(z4.number().int()),
+    responseBody: z4
       .number()
       .int()
       .transform((s) => s.toString()),
   },
   'POST /sum/with-query-param': {
-    requestBody: z.array(z.number().int()),
-    responseBody: z.number().int(),
+    requestBody: z4.array(z4.number().int()),
+    responseBody: z4.number().int(),
   },
 });
 
 // Used for testing get request without json body parser
 export const testGetOnlySchema = createHttpSchema({
   'GET /random-numbers': {
-    responseBody: z.array(z.number()),
+    responseBody: z4.array(z4.number()),
   },
 });
