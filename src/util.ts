@@ -1,5 +1,4 @@
 import { HttpSchema, Method } from './shared';
-import { ZodType } from 'zod/v3';
 
 // TODO: ...
 export type ExtractMethod<Route> = Route extends `${infer M} ${string}`
@@ -33,7 +32,7 @@ export type RequestBody<
   M extends Method,
   P extends S[keyof S]['path']
 > = FilterRoutes<S, M, P>['requestBody'] extends infer U
-  ? U extends ZodType<infer T>
+  ? U extends { _output: any }
     ? U['_output']
     : undefined
   : never;
@@ -43,7 +42,7 @@ export type RequestBodyInput<
   M extends Method,
   P extends S[keyof S]['path']
 > = FilterRoutes<S, M, P>['requestBody'] extends infer U
-  ? U extends ZodType<infer T>
+  ? U extends { _input: any }
     ? U['_input']
     : undefined
   : never;
@@ -54,7 +53,7 @@ export type ResponseBody<
   M extends Method,
   P extends S[keyof S]['path']
 > = FilterRoutes<S, M, P>['responseBody'] extends infer U
-  ? U extends ZodType<infer T>
+  ? U extends { _output: any }
     ? U['_output']
     : undefined
   : never;
@@ -64,7 +63,7 @@ export type ResponseBodyInput<
   M extends Method,
   P extends S[keyof S]['path']
 > = FilterRoutes<S, M, P>['responseBody'] extends infer U
-  ? U extends ZodType<infer T>
+  ? U extends { _input: any }
     ? U['_input']
     : undefined
   : never;

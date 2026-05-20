@@ -8,7 +8,6 @@ import * as morgan from 'morgan';
 import { createRequestHandler, decorateExpressRouter } from '../../server';
 import { testGetOnlySchema, testSchema } from './test-schema';
 import { z } from 'zod/v3';
-import { testSchemaV4 } from './test-schema-v4';
 
 export function createTestServer() {
   const RequestProps = z.object({
@@ -25,7 +24,7 @@ export function createTestServer() {
 
   // Implement the HTTP schema using an Express Router instance.
   const typedRoutes = decorateExpressRouter({
-    schema: testSchemaV4,
+    schema: testSchema,
     requestProps: RequestProps,
     onValidationError: (err, _, res) => {
       console.log(err);
