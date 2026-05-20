@@ -1,9 +1,9 @@
 import * as pathToRegExp from 'path-to-regexp';
-import * as z from 'zod';
+import * as z from 'zod/v3';
 import { ExtractMethod, ExtractPath } from '../util';
 import { Method, methods } from './methods';
 import { RouteInfo } from './route-info';
-import { ZodTypeAny } from 'zod';
+import { ZodTypeAny } from 'zod/v3';
 
 /**
  * Creates a HttpSchema object from the given route specifications.

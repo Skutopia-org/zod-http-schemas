@@ -8,8 +8,8 @@ import {
 import { HttpSchema, Method } from '../shared';
 import { Paths } from '../util';
 import { RequestHandler } from './create-request-handler';
-import { ZodType, ZodTypeAny } from 'zod';
-import * as z from 'zod';
+import { ZodType, ZodTypeAny } from 'zod/v3';
+import * as z from 'zod/v3';
 
 /** Options for decorateExpressRouter. */
 export interface DecorateExpressRouterOptions<

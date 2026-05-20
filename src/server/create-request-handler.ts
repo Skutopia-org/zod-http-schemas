@@ -14,7 +14,7 @@ import {
   ResponseBodyInput,
 } from '../util';
 import { HttpSchema, Method } from '../shared';
-import { ZodType, ZodTypeAny } from 'zod';
+import { ZodType, ZodTypeAny } from 'zod/v3';
 
 /**
  * Accepts and returns a request handler function that is strongly-typed to match the given schema definition for the

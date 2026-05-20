@@ -1,5 +1,5 @@
 import { HttpSchema, Method } from './shared';
-import { infer, ZodType, ZodTypeAny } from 'zod';
+import { infer, ZodType, ZodTypeAny } from 'zod/v3';
 
 // TODO: ...
 export type ExtractMethod<Route> = Route extends `${infer M} ${string}`
