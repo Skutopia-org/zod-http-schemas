@@ -1,4 +1,5 @@
-import { createHttpSchema, z } from '../../shared';
+import { createHttpSchema } from '../../shared';
+import { z } from 'zod/v3';
 
 const customValidationErrorResponse = z.object({
   success: z.literal(false),

@@ -1,5 +1,6 @@
 // ====================   SHARED   ====================
-import { createHttpSchema, z } from '../..';
+import { createHttpSchema } from '../..';
+import { z } from 'zod/v3';
 
 // Declare the http schema to be used by both client and server
 const apiSchema = createHttpSchema({

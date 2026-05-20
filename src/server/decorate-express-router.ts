@@ -8,8 +8,9 @@ import {
 import { HttpSchema, Method } from '../shared';
 import { Paths } from '../util';
 import { RequestHandler } from './create-request-handler';
-import { ZodType, ZodTypeAny } from 'zod';
-import * as z from 'zod';
+import { ZodType, ZodTypeAny } from 'zod/v3';
+import * as z from 'zod/v3';
+import { ZodTypeAnyVersion } from '../shared/AnyVersionZodType';
 
 /** Options for decorateExpressRouter. */
 export interface DecorateExpressRouterOptions<
@@ -206,7 +207,10 @@ function createBodyValidationMiddleware(
   };
 
   // Helper function to runtime-validate that the body is the expected type, and to remove excess properties.
-  function validateAndClean(value: unknown, type: ZodTypeAny = z.undefined()) {
+  function validateAndClean(
+    value: unknown,
+    type: ZodTypeAnyVersion = z.undefined()
+  ) {
     return type.parse(value);
   }
 }

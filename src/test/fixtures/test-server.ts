@@ -5,8 +5,15 @@ import * as express from 'express';
 import * as useragent from 'express-useragent';
 import * as http from 'http';
 import * as morgan from 'morgan';
-import { createRequestHandler, decorateExpressRouter, z } from '../../server';
+import { createRequestHandler, decorateExpressRouter } from '../../server';
+import { z } from 'zod/v3';
+
+// Comment out the following imports to test with a zod v4 schema:
 import { testGetOnlySchema, testSchema } from './test-schema';
+// import {
+//   testGetOnlySchemaV4 as testGetOnlySchema,
+//   testSchemaV4 as testSchema,
+// } from './test-schema-v4';
 
 export function createTestServer() {
   const RequestProps = z.object({
@@ -32,6 +39,13 @@ export function createTestServer() {
         .send({ success: false, code: 'MY_CUSTOM_VALIDATION_ERROR' });
     },
   });
+
+  () => {
+    typedRoutes.get('/random-numbers', (req, res) => {
+      // @ts-expect-error - this should be a type error.
+      res.send(['foo', Math.random(), Math.random()]);
+    });
+  };
 
   // Specify some route handlers inline
   typedRoutes.get('/random-numbers', (req, res) => {
@@ -117,7 +131,9 @@ export function createTestServer() {
   });
   typedRoutes.post('/sum/with-query-param', async (req, res) => {
     const numbers = req.body;
-    const result = numbers.reduce((acc, val) => acc + val, 0) + parseInt(req.query.alsoAdd as string);
+    const result =
+      numbers.reduce((acc, val) => acc + val, 0) +
+      parseInt(req.query.alsoAdd as string);
     res.send(result);
   });
 

@@ -1,5 +1,5 @@
-import { ZodSchema, ZodTypeAny } from 'zod';
 import { Method } from './methods';
+import { ZodTypeAnyVersion } from './AnyVersionZodType';
 
 /** Runtime type information about a single HTTP route. */
 export interface RouteInfo<
@@ -10,6 +10,6 @@ export interface RouteInfo<
   method: M;
   path: P;
   namedParams: N[];
-  requestBody: ZodTypeAny;
-  responseBody: ZodTypeAny;
+  requestBody: ZodTypeAnyVersion;
+  responseBody: ZodTypeAnyVersion;
 }

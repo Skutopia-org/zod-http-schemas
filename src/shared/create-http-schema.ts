@@ -1,9 +1,9 @@
 import * as pathToRegExp from 'path-to-regexp';
-import * as z from 'zod';
+import * as z from 'zod/v3';
 import { ExtractMethod, ExtractPath } from '../util';
 import { Method, methods } from './methods';
 import { RouteInfo } from './route-info';
-import { ZodTypeAny } from 'zod';
+import { ZodTypeAnyVersion } from './AnyVersionZodType';
 
 /**
  * Creates a HttpSchema object from the given route specifications.
@@ -39,9 +39,9 @@ export function createHttpSchema<RS extends RouteSpecs>(
     let namedParams = pathParams.map((p) => String(p.name));
 
     // Extract the req/res body shapes.
-    const requestBody: ZodTypeAny =
+    const requestBody: ZodTypeAnyVersion =
       (routeSpecs as any)[route].requestBody ?? z.unknown();
-    const responseBody: ZodTypeAny =
+    const responseBody: ZodTypeAnyVersion =
       (routeSpecs as any)[route].responseBody ?? z.unknown();
 
     schema[route] = {
@@ -58,8 +58,8 @@ export function createHttpSchema<RS extends RouteSpecs>(
 /** Route specifications, given as an object keyed by route, with values describing the req/res body shape per route. */
 export interface RouteSpecs {
   [route: `${Method} ${string}`]: {
-    requestBody?: ZodTypeAny;
-    responseBody?: ZodTypeAny;
+    requestBody?: ZodTypeAnyVersion;
+    responseBody?: ZodTypeAnyVersion;
   };
 }
 
