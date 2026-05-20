@@ -1,6 +1,6 @@
 {
-  "name": "zod-http-schemas",
-  "version": "3.0.0",
+  "name": "@skutopia/zod-http-schemas",
+  "version": "3.0.1",
   "description": "Zod Powered, strongly-typed HTTP schemas",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
