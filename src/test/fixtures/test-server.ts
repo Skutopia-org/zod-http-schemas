@@ -6,7 +6,7 @@ import * as useragent from 'express-useragent';
 import * as http from 'http';
 import * as morgan from 'morgan';
 import { createRequestHandler, decorateExpressRouter } from '../../server';
-import { z } from 'zod/v3';
+import { z } from 'zod/v4';
 
 // Comment out the following imports to test with a zod v4 schema:
 import { testGetOnlySchema, testSchema } from './test-schema';

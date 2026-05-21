@@ -16,7 +16,7 @@ import { ZodTypeAnyVersion } from '../shared/AnyVersionZodType';
 export interface DecorateExpressRouterOptions<
   Schema extends HttpSchema,
   App extends IRouter,
-  ReqProps extends ZodTypeAny
+  ReqProps extends ZodTypeAnyVersion
 > {
   /** Type schema describing the endpoints handled by the express server. */
   schema: Schema;
@@ -41,7 +41,7 @@ export interface DecorateExpressRouterOptions<
 export function decorateExpressRouter<
   Schema extends HttpSchema,
   App extends IRouter,
-  ReqProps extends ZodTypeAny = ZodType<{}>
+  ReqProps extends ZodTypeAnyVersion = ZodType<{}>
 >(options: DecorateExpressRouterOptions<Schema, App, ReqProps>) {
   // Return a new app/router with some overridden methods. The original app/router is left unchanged.
   let router = options.router ?? express.Router();
@@ -117,7 +117,7 @@ export function decorateExpressRouter<
 export type DecoratedExpressRouter<
   S extends HttpSchema,
   R extends IRouter,
-  ReqProps extends ZodTypeAny
+  ReqProps extends ZodTypeAnyVersion
 > = ExpressRequestHandler &
   Omit<R, Lowercase<Method>> & {
     [M in Method as Lowercase<M>]: <P extends Paths<S, M>>(
@@ -131,7 +131,7 @@ export type DecoratedExpressRouter<
 
 /** Creates a middleware function that validates request properties against the given schema. */
 function createRequestPropValidationMiddleware(
-  requestProps: ZodTypeAny
+  requestProps: ZodTypeAnyVersion
 ): ExpressRequestHandler {
   return (req, _, next) => {
     requestProps.parse(req);

@@ -15,6 +15,7 @@ import {
 } from '../util';
 import { HttpSchema, Method } from '../shared';
 import { ZodType, ZodTypeAny } from 'zod/v3';
+import { ZodTypeAnyVersion } from '../shared/AnyVersionZodType';
 
 /**
  * Accepts and returns a request handler function that is strongly-typed to match the given schema definition for the
@@ -28,7 +29,7 @@ export function createRequestHandler<S extends HttpSchema, R extends keyof S>(
 export function createRequestHandler<
   S extends HttpSchema,
   R extends keyof S,
-  ReqProps extends ZodTypeAny = ZodType<{}>
+  ReqProps extends ZodTypeAnyVersion = ZodType<{}>
 >(options: {
   schema: S;
   route: R;
