@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.3](https://github.com/antman261/zod-http-schemas/compare/v3.0.2...v3.0.3) (2026-05-21)
+
 ### [3.0.2](https://github.com/antman261/zod-http-schemas/compare/v2.0.5...v3.0.2) (2026-05-21)
 
 
