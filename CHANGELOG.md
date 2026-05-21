@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [3.0.2](https://github.com/antman261/zod-http-schemas/compare/v2.0.5...v3.0.2) (2026-05-21)
+
+
+### Bug Fixes
+
+* Remove unused import ([8e95777](https://github.com/antman261/zod-http-schemas/commit/8e9577722deadd6c1d80899d2c2b5c8c9769c32a))
+* Update version of axios ([79139b3](https://github.com/antman261/zod-http-schemas/commit/79139b3cdc966c9d297a58e6176cbf2d80fa07cb))
+
 ### [2.0.6](https://github.com/antman261/zod-http-schemas/compare/v2.0.5...v2.0.6) (2026-05-05)
 
 
