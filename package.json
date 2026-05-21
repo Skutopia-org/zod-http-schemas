@@ -70,7 +70,7 @@
     "zod": "^3.25.76"
   },
   "dependencies": {
-    "axios": "^0.32.0",
+    "axios": "^1.16.1",
     "express": "^4.17.1",
     "path-to-regexp": "^4.0.2"
   },
