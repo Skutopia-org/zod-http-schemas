@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import * as pathToRegExp from 'path-to-regexp';
 import {
   Anonymize,
@@ -26,6 +26,7 @@ export function createHttpClient<S extends HttpSchema>(
     put: (path, info?) => request('PUT', path, info),
     patch: (path, info?) => request('PATCH', path, info),
     delete: (path, info?) => request('DELETE', path, info),
+    instance: axiosClient,
   };
 
   async function request(
@@ -85,6 +86,9 @@ export type HttpClient<S extends HttpSchema> = {
       ? [RequestInfo<S, M, P>?] // make the `info` arg optional if this route has no params/body
       : [RequestInfo<S, M, P>] // make the `info` arg required if this route does have params/body
   ) => Promise<AxiosResponse<ResponseBody<S, M, P>>>;
+} & {
+  /** Underlying axios instance — exposed for consumers who need to add interceptors, modify defaults, etc. */
+  instance: AxiosInstance;
 };
 
 /** Strongly-typed object used to provide details for a HTTP request to a specific route. */
