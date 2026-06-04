@@ -100,6 +100,13 @@ describe('Implementing a HTTP client and server', () => {
       )
     );
   });
+  it('It allows clients to skip zod parsing', async () => {
+    const response = await client.post('/sum/transform-response', {
+      body: [1, 2, 3],
+      skipClientValidation: true,
+    });
+    expect(response.data).to.equal('6');
+  });
   it('Passes query params on to the server', async () => {
     const { data: res } = await client.post('/sum/with-query-param', {
       body: [1, 2, 3],
