@@ -35,6 +35,7 @@ export function createHttpClient<S extends HttpSchema>(
       params?: any;
       body?: any;
       queryParams?: AxiosRequestConfig['params'];
+      skipClientValidation?: boolean;
     }
   ) {
     // Create the actual URL by substituting params (if any) into the path pattern.
@@ -57,6 +58,9 @@ export function createHttpClient<S extends HttpSchema>(
       data: info?.body,
       params: info?.queryParams,
     }).then((response) => {
+      if (info?.skipClientValidation) {
+        return response;
+      }
       // if we fail to parse here, mean our API is returning something weird
       // an Exception would be thrown by Zod
       try {
@@ -93,12 +97,15 @@ type RequestInfo<
   M extends Method,
   P extends S[keyof S]['path'] = string
 > = Anonymize<
-  (HasNamedParams<S, M, P> extends true
+  ((HasNamedParams<S, M, P> extends true
     ? { params: Record<NamedParams<S, M, P>, string> } // make `params` required if this route does have named params
     : { params?: Record<string, never> }) & // make `params` optional if this route has no named params
     (HasBody<S, M, P> extends true
       ? { body: RequestBodyInput<S, M, P> } // make `body` required if this route does have a body
-      : { body?: never }) & { queryParams?: AxiosRequestConfig['params'] } // make `body` optional if this route has no body
+      : { body?: never }) & { queryParams?: AxiosRequestConfig['params'] }) & {
+    // make `body` optional if this route has no body
+    skipClientValidation?: boolean;
+  }
 >;
 
 /** Helper type that resolves to `true` if the route for the given method/path has defined namedParams. */
