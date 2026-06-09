@@ -56,23 +56,14 @@ export function createHttpClient<S extends HttpSchema>(
       method,
       url,
       data: info?.body,
-      params: info?.queryParams,
+      params: info?.queryParams
     }).then((response) => {
       if (info?.skipClientValidation) {
         return response;
       }
       // if we fail to parse here, mean our API is returning something weird
       // an Exception would be thrown by Zod
-      try {
-        response.data = responseBodySchema.parse(response.data);
-      } catch (e) {
-        console.error(
-          `Invalid input triggered zod parsing error: ${JSON.stringify(
-            response.data
-          )}`
-        );
-        throw e;
-      }
+      response.data = responseBodySchema.parse(response.data);
 
       return response;
     });
